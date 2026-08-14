@@ -35,7 +35,7 @@
   --topbar-h:56px;
 }
 *{box-sizing:border-box;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth; overflow-x:hidden;}
 body{
   margin:0;
   background:var(--bg);
@@ -44,6 +44,7 @@ body{
   line-height:1.65;
   -webkit-font-smoothing:antialiased;
   padding-bottom:var(--statusbar-h);
+  overflow-x:hidden;
 }
 ::selection{background:var(--amber-soft); color:var(--amber);}
 a{color:var(--violet);}
@@ -846,11 +847,22 @@ td.lang-cs{color:var(--violet); font-family:var(--font-mono); font-weight:600;}
       <h3 style="font-size:17px; margin-top:38px;">Kirim Hasil ke Pembina</h3>
       <p>Selesaikan dulu kuis pilihan ganda dan permainan Perburuan Titik Koma di atas, lalu isi data di bawah untuk mengirim hasilmu.</p>
       <div class="quiz-card">
+        <div style="display:flex; gap:10px; margin-bottom:6px;">
+          <button class="btn mode-btn active" id="modeIndividu" type="button">👤 Individu</button>
+          <button class="btn mode-btn" id="modeKelompok" type="button">👥 Kelompok</button>
+        </div>
+
         <div class="idform" id="formIndividu">
           <div class="field"><label for="qNama">Nama Lengkap</label><input id="qNama" type="text" placeholder="Nama kamu"></div>
-          <div class="field"><label for="qKelas">Kelas</label><input id="qKelas" type="text" placeholder="Contoh: XI 1"></div>
+          <div class="field"><label for="qKelas">Kelas</label><input id="qKelas" type="text" placeholder="Contoh: X TKJ 1"></div>
           <div class="field"><label for="qNis">NIS</label><input id="qNis" type="text" placeholder="Nomor Induk Siswa"></div>
           <div class="field"><label for="qAbsen">No. Absen</label><input id="qAbsen" type="text" placeholder="Nomor absen"></div>
+        </div>
+
+        <div class="idform hidden" id="formKelompok">
+          <div class="field"><label for="qNamaKelompok">Nama Kelompok</label><input id="qNamaKelompok" type="text" placeholder="Contoh: Kelompok 3"></div>
+          <div class="field"><label for="qKelasKelompok">Kelas</label><input id="qKelasKelompok" type="text" placeholder="Contoh: X TKJ 1"></div>
+          <div class="field" style="grid-column:1 / -1;"><label for="qAnggota">Anggota Kelompok (pisahkan dengan koma)</label><input id="qAnggota" type="text" placeholder="Contoh: Ani, Budi, Citra"></div>
         </div>
 
         <button class="btn primary" id="submitHasil">Kirim Hasil</button>
@@ -936,7 +948,7 @@ td.lang-cs{color:var(--violet); font-family:var(--font-mono); font-weight:600;}
 
 <div class="toast" id="toast">Yuk, coba ketik sendiri kodenya ya 🙂</div>
 
-<footer style="text-align:center; padding:24px 20px; font-family:var(--font-mono); font-size:12.5px; color:var(--text-faint); max-width:520px; margin:0 auto;">"Programmer hebat bukan yang tidak pernah error, tapi yang tidak berhenti mencoba sampai kodenya berhasil berjalan." <span style="color:var(--amber);">💛</span> Semangat belajar, Ekstra Komputer!</footer>
+<footer style="text-align:center; padding:20px; font-family:var(--font-mono); font-size:11.5px; color:var(--text-faint);">Dibuat untuk Ekstrakurikuler Komputer</footer>
 
 </div><!-- /#konten-utama -->
 
@@ -1269,6 +1281,23 @@ document.getElementById('gameCheck').addEventListener('click', ()=>{
 document.getElementById('gameReset').addEventListener('click', setupGame);
 setupGame();
 
+/* ---------------- Mode Individu / Kelompok ---------------- */
+let modeAktif = 'Individu';
+const btnIndividu = document.getElementById('modeIndividu');
+const btnKelompok = document.getElementById('modeKelompok');
+const formIndividu = document.getElementById('formIndividu');
+const formKelompok = document.getElementById('formKelompok');
+btnIndividu.addEventListener('click', ()=>{
+  modeAktif = 'Individu';
+  btnIndividu.classList.add('active'); btnKelompok.classList.remove('active');
+  formIndividu.classList.remove('hidden'); formKelompok.classList.add('hidden');
+});
+btnKelompok.addEventListener('click', ()=>{
+  modeAktif = 'Kelompok';
+  btnKelompok.classList.add('active'); btnIndividu.classList.remove('active');
+  formKelompok.classList.remove('hidden'); formIndividu.classList.add('hidden');
+});
+
 /* ---------------- Kirim hasil ke Google Sheet (lewat Apps Script di config.js) ---------------- */
 const MATERI_LABEL = "Pengenalan C++";
 async function kirimKeSheet(materi, skor, total, identitas){
@@ -1300,15 +1329,27 @@ document.getElementById('submitHasil').addEventListener('click', async ()=>{
     alert('Selesaikan dulu kuis pilihan ganda dan permainan Perburuan Titik Koma di atas sebelum mengirim hasil.');
     return;
   }
-  const nama = document.getElementById('qNama').value.trim();
-  const kelas = document.getElementById('qKelas').value.trim();
-  const nis = document.getElementById('qNis').value.trim();
-  const absen = document.getElementById('qAbsen').value.trim();
-  if(!nama || !kelas || !nis || !absen){
-    alert('Isi dulu Nama, Kelas, NIS, dan No. Absen ya.');
-    return;
+  let identitas = { mode: modeAktif };
+  if(modeAktif === 'Individu'){
+    const nama = document.getElementById('qNama').value.trim();
+    const kelas = document.getElementById('qKelas').value.trim();
+    const nis = document.getElementById('qNis').value.trim();
+    const absen = document.getElementById('qAbsen').value.trim();
+    if(!nama || !kelas || !nis || !absen){
+      alert('Isi dulu Nama, Kelas, NIS, dan No. Absen ya.');
+      return;
+    }
+    identitas.nama = nama; identitas.kelas = kelas; identitas.nis = nis; identitas.absen = absen;
+  } else {
+    const nama = document.getElementById('qNamaKelompok').value.trim();
+    const kelas = document.getElementById('qKelasKelompok').value.trim();
+    const anggota = document.getElementById('qAnggota').value.trim();
+    if(!nama || !kelas || !anggota){
+      alert('Isi dulu Nama Kelompok, Kelas, dan Anggota Kelompok ya.');
+      return;
+    }
+    identitas.nama = nama; identitas.kelas = kelas; identitas.anggota = anggota;
   }
-  let identitas = { mode: 'Individu', nama, kelas, nis, absen };
 
   const submitBtn = document.getElementById('submitHasil');
   submitBtn.disabled = true;
