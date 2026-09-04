@@ -85,6 +85,10 @@ code, .code-line, .console-body, .console-head, .terminal .body, .op-sym,
   font-family:var(--font-mono); font-size:13px; color:var(--text-dim);
 }
 .topbar .filename b{color:var(--text); font-weight:500;}
+.guru-badge{
+  font-family:var(--font-mono); font-size:10.5px; color:#1a1305; background:var(--amber);
+  padding:2px 8px; border-radius:20px; margin-left:6px; font-weight:700;
+}
 .menu-toggle{
   margin-left:auto; display:none;
   background:var(--surface-2); border:1px solid var(--border);
@@ -461,7 +465,7 @@ td.op-sym{color:var(--amber); font-family:var(--font-mono); font-weight:700; fon
 
 <div class="topbar">
   <div class="dots"><span></span><span></span><span></span></div>
-  <div class="filename"><a href="../index.html" style="color:inherit; text-decoration:none; opacity:.7;">⌨️ Ekstra Komputer</a> &nbsp;›&nbsp; <b id="topbarStepName">Pertemuan 3 — CIN dan Operator</b></div>
+  <div class="filename"><a href="../index.html" style="color:inherit; text-decoration:none; opacity:.7;">⌨️ Ekstra Komputer</a> &nbsp;›&nbsp; <b id="topbarStepName">Pertemuan 3 — CIN dan Operator</b> <span class="guru-badge hidden" id="guruBadge">🔓 Mode Guru</span></div>
   <button class="menu-toggle" id="menuToggle">☰ Langkah</button>
 </div>
 
@@ -1186,6 +1190,34 @@ const totalSteps = 6; // langkah 1..6 (langkah 0 = beranda, selalu terbuka)
 let currentStep = 0;
 let maxUnlocked = 1; // langkah 0 & 1 terbuka sejak awal
 
+/* ---- Mode Guru: buka semua langkah tanpa perlu lolos kuis ----
+   Cara pakai: tambahkan ?guru=1 di akhir link file ini, atau tekan
+   Ctrl+Alt+G saat membuka materi. Siswa yang membuka link biasa
+   tidak akan tahu/terpengaruh oleh ini. */
+let modeGuru = false;
+function aktifkanModeGuru(){
+  modeGuru = true;
+  maxUnlocked = totalSteps;
+  const badge = document.getElementById('guruBadge');
+  if(badge) badge.classList.remove('hidden');
+  refreshNav();
+  showToast('🔓 Mode Guru aktif — semua langkah terbuka');
+}
+(function cekModeGuru(){
+  try{
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('guru') === '1' || params.get('mode') === 'guru'){
+      maxUnlocked = totalSteps;
+      modeGuru = true;
+    }
+  }catch(e){}
+})();
+document.addEventListener('keydown', e=>{
+  if(e.ctrlKey && e.altKey && (e.key === 'g' || e.key === 'G')){
+    aktifkanModeGuru();
+  }
+});
+
 const stepNames = {
   0:'Beranda', 1:'CIN: Satu Nilai', 2:'CIN: Banyak Nilai',
   3:'Operator Aritmatika', 4:'Perbandingan & Logika',
@@ -1207,6 +1239,8 @@ function refreshNav(){
   const pct = Math.round((maxUnlocked / (totalSteps + 1)) * 100);
   document.getElementById('sbProgress').innerHTML = 'Progres: <b>' + pct + '%</b>';
   document.getElementById('topbarStepName').textContent = 'Pertemuan 3 — ' + stepNames[currentStep];
+  const badge = document.getElementById('guruBadge');
+  if(badge) badge.classList.toggle('hidden', !modeGuru);
 }
 
 function goStep(n){
