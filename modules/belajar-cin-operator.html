@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Belajar C++ — Pertemuan 3: CIN dan Operator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0E14;
+  --bg-soft:#0E121C;
+  --surface:#161B27;
+  --surface-2:#1D2333;
+  --surface-3:#242B3D;
+  --border:#2A3145;
+  --border-soft:#1E2434;
+  --text:#E7EAF3;
+  --text-dim:#97A0B8;
+  --text-faint:#5C6478;
+  --amber:#F0A860;
+  --amber-soft:rgba(240,168,96,.12);
+  --mint:#7FDBB6;
+  --mint-soft:rgba(127,219,182,.12);
+  --violet:#9CA8FF;
+  --violet-soft:rgba(156,168,255,.12);
+  --coral:#FF6B6B;
+  --coral-soft:rgba(255,107,107,.12);
+  --font-display:'Space Grotesk', sans-serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+  --sidebar-w:280px;
+  --statusbar-h:34px;
+  --topbar-h:56px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:var(--statusbar-h);
+}
+::selection{background:var(--amber-soft); color:var(--amber);}
+a{color:var(--violet);}
+h1,h2,h3,h4{font-family:var(--font-display); font-weight:700; margin:0 0 .5em; letter-spacing:-.01em;}
+p{margin:0 0 1em; color:var(--text-dim);}
+strong{color:var(--text); font-weight:600;}
+code{font-family:var(--font-mono); font-size:.9em; background:var(--surface-2); color:var(--mint); padding:.15em .4em; border-radius:4px;}
+::-webkit-scrollbar{width:10px; height:10px;}
+::-webkit-scrollbar-track{background:var(--bg-soft);}
+::-webkit-scrollbar-thumb{background:var(--surface-3); border-radius:6px;}
+
+/* ---------- Matikan font ligature (JetBrains Mono suka menggabungkan
+   ==, !=, >=, <= jadi satu simbol gabungan — kita mau tampil apa adanya
+   sebagai karakter terpisah, sesuai yang benar-benar diketik di keyboard) ---------- */
+code, .code-line, .console-body, .console-head, .terminal .body, .op-sym,
+.no-copy-badge, .tag, .gate-title, .q-progress, .btn, .statusbar, .toast,
+.filename, .sidebar nav a, .recap-chip, .field label, .eyebrow, .sources h3,
+.menu-toggle, .sidebar .group-label, .term-note{
+  font-variant-ligatures: none;
+  -webkit-font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0, "dlig" 0, "clig" 0;
+}
+
+/* ---------- TOPBAR ---------- */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  height:var(--topbar-h);
+  display:flex; align-items:center; gap:12px;
+  padding:0 18px;
+  background:var(--bg-soft);
+  border-bottom:1px solid var(--border-soft);
+}
+.topbar .dots{display:flex; gap:6px;}
+.topbar .dots span{width:11px; height:11px; border-radius:50%; display:inline-block;}
+.topbar .dots span:nth-child(1){background:#FF6B6B;}
+.topbar .dots span:nth-child(2){background:#F0A860;}
+.topbar .dots span:nth-child(3){background:#7FDBB6;}
+.topbar .filename{
+  font-family:var(--font-mono); font-size:13px; color:var(--text-dim);
+}
+.topbar .filename b{color:var(--text); font-weight:500;}
+.menu-toggle{
+  margin-left:auto; display:none;
+  background:var(--surface-2); border:1px solid var(--border);
+  color:var(--text); font-family:var(--font-mono); font-size:12px;
+  padding:7px 12px; border-radius:6px; cursor:pointer;
+}
+
+/* ---------- LAYOUT ---------- */
+.shell{display:flex; min-height:calc(100vh - var(--topbar-h) - var(--statusbar-h));}
+
+.sidebar{
+  width:var(--sidebar-w); flex-shrink:0;
+  background:var(--bg-soft);
+  border-right:1px solid var(--border-soft);
+  position:sticky; top:var(--topbar-h);
+  height:calc(100vh - var(--topbar-h));
+  overflow-y:auto;
+  padding:18px 0 30px;
+}
+.sidebar .group-label{
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--text-faint);
+  padding:6px 20px; margin-top:10px;
+}
+.sidebar nav a{
+  display:flex; align-items:center; gap:9px;
+  padding:8px 20px; font-family:var(--font-mono); font-size:13px;
+  color:var(--text-dim); text-decoration:none; border-left:2px solid transparent;
+  transition:.15s; cursor:pointer;
+}
+.sidebar nav a:hover{background:var(--surface); color:var(--text);}
+.sidebar nav a.active{
+  background:var(--surface-2); color:var(--amber); border-left-color:var(--amber);
+}
+.sidebar nav a .num{color:var(--text-faint); font-size:11px; width:16px; flex-shrink:0;}
+.sidebar nav a.active .num{color:var(--amber);}
+.sidebar nav a.locked{opacity:.38; cursor:not-allowed;}
+.sidebar nav a.done .num{color:var(--mint);}
+.sidebar nav a .lockicon{margin-left:auto; font-size:11px;}
+
+main{flex:1; min-width:0; padding:0 0 60px;}
+.step-panel{display:none;}
+.step-panel.active{display:block;}
+.section{
+  max-width:880px; margin:0 auto; padding:64px 32px 20px; scroll-margin-top:80px;
+}
+.eyebrow{
+  font-family:var(--font-mono); font-size:12px; color:var(--amber);
+  text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.eyebrow::before{content:''; width:18px; height:1px; background:var(--amber);}
+.section h2{font-size:clamp(24px,3.4vw,34px);}
+.lead{font-size:17px; color:var(--text-dim);}
+.term{color:var(--text); font-style:normal; font-weight:600;}
+.term-note{font-size:13.5px; color:var(--text-faint);}
+
+/* ---------- HERO ---------- */
+.hero{
+  max-width:880px; margin:0 auto; padding:70px 32px 40px;
+}
+.terminal{
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  overflow:hidden; box-shadow:0 20px 60px -20px rgba(0,0,0,.6);
+}
+.terminal .bar{
+  display:flex; align-items:center; gap:6px; padding:10px 14px;
+  background:var(--surface-2); border-bottom:1px solid var(--border);
+}
+.terminal .bar span{width:10px; height:10px; border-radius:50%;}
+.terminal .bar span:nth-child(1){background:#FF6B6B;}
+.terminal .bar span:nth-child(2){background:#F0A860;}
+.terminal .bar span:nth-child(3){background:#7FDBB6;}
+.terminal .bar .tt{margin-left:8px; font-family:var(--font-mono); font-size:12px; color:var(--text-faint);}
+.terminal .body{padding:22px 20px; font-family:var(--font-mono); font-size:14.5px; min-height:130px;}
+.terminal .line{color:var(--text-dim); white-space:pre-wrap;}
+.terminal .prompt{color:var(--mint);}
+.terminal .out{color:var(--amber);}
+.cursor{display:inline-block; width:8px; height:16px; background:var(--amber); vertical-align:middle; animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+.hero h1{
+  font-size:clamp(28px,4.6vw,42px); margin-top:26px; line-height:1.15;
+}
+.hero h1 .hl{color:var(--amber);}
+.hero .sub{font-size:16.5px; color:var(--text-dim); max-width:640px;}
+.hero-tags{display:flex; flex-wrap:wrap; gap:8px; margin-top:18px;}
+.tag{
+  font-family:var(--font-mono); font-size:12px; color:var(--text-dim);
+  border:1px solid var(--border); padding:5px 10px; border-radius:20px;
+}
+.hero-start{margin-top:28px;}
+
+/* ---------- CARDS / GRID ---------- */
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  padding:22px; margin:14px 0;
+}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+.mini-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px;
+}
+.mini-card .ic{font-family:var(--font-mono); color:var(--amber); font-size:13px; margin-bottom:8px;}
+.mini-card h4{font-size:15px; margin-bottom:6px;}
+.mini-card p{font-size:14px; margin:0;}
+
+/* ---------- TABLE ---------- */
+.table-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:10px; margin:18px 0;}
+table{width:100%; border-collapse:collapse; font-size:14px; min-width:480px;}
+th,td{padding:12px 14px; text-align:left; border-bottom:1px solid var(--border-soft);}
+thead th{
+  background:var(--surface-2); font-family:var(--font-mono); font-size:12px;
+  text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint);
+}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface);}
+td.op-sym{color:var(--amber); font-family:var(--font-mono); font-weight:700; font-size:15px;}
+
+/* ---------- CODE BLOCK (tidak bisa disalin) ---------- */
+.code-block{
+  background:#0D1119; border:1px solid var(--border); border-radius:10px;
+  overflow:hidden; margin:18px 0;
+}
+.code-head{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:9px 14px; background:var(--surface-2); border-bottom:1px solid var(--border);
+  font-family:var(--font-mono); font-size:12px; color:var(--text-faint);
+}
+.no-copy-badge{
+  font-family:var(--font-mono); font-size:10.5px; color:var(--coral);
+  border:1px solid var(--coral); padding:3px 8px; border-radius:20px;
+}
+.code-body{padding:16px 0; overflow-x:auto; user-select:none; -webkit-user-select:none; -moz-user-select:none;}
+.code-line{
+  position:relative;
+  padding:1px 18px 1px 62px; font-family:var(--font-mono); font-size:14px; white-space:pre;
+}
+.code-line::before{
+  content: attr(data-ln);
+  position:absolute; left:18px; top:1px;
+  width:28px; color:var(--text-faint); user-select:none; text-align:right;
+}
+.tk-pre{color:var(--violet);}
+.tk-kw{color:var(--amber);}
+.tk-type{color:#7FB3DB;}
+.tk-str{color:var(--mint);}
+.tk-fn{color:#C9A0FF;}
+.tk-com{color:var(--text-faint); font-style:italic;}
+.tk-punc{color:var(--text-dim);}
+.tk-blank{color:var(--text-faint);}
+
+/* console output mockup */
+.console-block{
+  background:#050607; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:14px 0 18px;
+}
+.console-head{
+  padding:9px 14px; background:var(--surface-2); border-bottom:1px solid var(--border);
+  font-family:var(--font-mono); font-size:12px; color:var(--text-faint);
+  display:flex; align-items:center; gap:8px;
+}
+.console-head::before{content:'▶'; color:var(--mint); font-size:10px;}
+.console-head span{flex:1; min-width:0;}
+.console-replay{padding:5px 10px; font-size:11px; flex-shrink:0; margin-left:auto;}
+.console-body{padding:18px 20px; font-family:var(--font-mono); font-size:14px; color:#D9DCE3; overflow-x:auto; min-height:28px;}
+.console-body .cline{margin-bottom:4px; white-space:pre;}
+.console-body .cin-val{color:var(--amber); font-weight:600;}
+.console-body .cmeta{color:var(--text-faint); margin-top:10px; font-size:12.5px;}
+.console-cursor{display:inline-block; width:8px; margin-left:1px; color:var(--amber); animation:blink 1s step-end infinite;}
+
+/* line-by-line explanation */
+.explain-list{margin:24px 0;}
+.explain-item{
+  display:grid; grid-template-columns:44px minmax(0,1fr); gap:14px;
+  padding:14px 0; border-top:1px solid var(--border-soft); max-width:100%;
+}
+.explain-item:first-child{border-top:none;}
+.explain-item .badge{
+  font-family:var(--font-mono); font-size:12px; color:var(--amber);
+  background:var(--amber-soft); width:32px; height:32px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+}
+.explain-item code.line-code{
+  display:block; background:var(--surface-2); padding:6px 10px; border-radius:6px;
+  margin-bottom:6px; color:var(--mint); font-size:13px; width:fit-content;
+}
+.explain-item p{margin:0; font-size:14.5px;}
+
+/* try-it prompt */
+.try-it{
+  display:flex; align-items:center; gap:10px; background:var(--mint-soft); border:1px dashed var(--mint);
+  color:var(--mint); border-radius:8px; padding:10px 14px; font-size:13.5px; margin:10px 0 22px;
+}
+
+/* callout */
+.callout-list{margin:20px 0; display:grid; gap:12px;}
+.callout{
+  display:grid; grid-template-columns:34px minmax(0,1fr); gap:14px; align-items:start;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; max-width:100%;
+}
+.callout > div:last-child{min-width:0; overflow-wrap:break-word; word-break:break-word;}
+.callout.warn{border-color:var(--coral); background:var(--coral-soft);}
+.callout .cnum{
+  width:30px; height:30px; border-radius:50%; background:var(--violet-soft); color:var(--violet);
+  font-family:var(--font-mono); font-weight:700; display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+.callout.warn .cnum{background:var(--coral); color:#2a0e0e;}
+.callout h4{font-size:14.5px; margin-bottom:4px;}
+.callout p{font-size:13.5px; margin:0;}
+
+/* ---------- QUIZ / GATE ---------- */
+.gate-wrap{margin-top:38px; padding-top:28px; border-top:1px solid var(--border-soft);}
+.gate-title{
+  font-family:var(--font-mono); font-size:12px; color:var(--violet);
+  text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;
+  display:flex; align-items:center; gap:8px;
+}
+.gate-title::before{content:'🔐';}
+.gate-note{font-size:14px; color:var(--text-dim); margin-bottom:16px;}
+.quiz-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; margin:10px 0;
+}
+.q-progress{font-family:var(--font-mono); font-size:12px; color:var(--text-faint); margin-bottom:10px;}
+.q-text{font-size:16px; font-weight:600; margin-bottom:18px; font-family:var(--font-display); color:var(--text);}
+.q-text code{font-size:.85em;}
+.q-options{display:grid; gap:10px;}
+.q-opt{
+  text-align:left; background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+  padding:13px 16px; border-radius:8px; font-family:var(--font-body); font-size:14.5px; cursor:pointer;
+  transition:.15s;
+}
+.q-opt code{background:transparent; padding:0; color:inherit; font-size:.95em;}
+.q-opt:hover{border-color:var(--violet);}
+.q-opt.correct{border-color:var(--mint); background:var(--mint-soft); color:var(--mint);}
+.q-opt.wrong{border-color:var(--coral); background:var(--coral-soft); color:var(--coral);}
+.q-opt:disabled{cursor:default;}
+.q-explain{
+  margin-top:14px; padding:12px 14px; border-radius:8px; background:var(--bg-soft);
+  border:1px dashed var(--border); font-size:13.5px; color:var(--text-dim); display:none;
+}
+.q-nav{display:flex; justify-content:space-between; align-items:center; margin-top:18px;}
+.btn{
+  font-family:var(--font-mono); font-size:13px; border-radius:7px; padding:9px 16px;
+  border:1px solid var(--border); background:var(--surface-2); color:var(--text); cursor:pointer;
+}
+.btn:hover{border-color:var(--amber); color:var(--amber);}
+.btn.primary{background:var(--amber); border-color:var(--amber); color:#1a1305; font-weight:600;}
+.btn.primary:hover{opacity:.9; color:#1a1305;}
+.btn.mint{background:var(--mint); border-color:var(--mint); color:#0c2419; font-weight:600;}
+.btn.mint:hover{opacity:.9; color:#0c2419;}
+.btn:disabled{opacity:.4; cursor:not-allowed;}
+.quiz-result{display:none; text-align:center; padding:26px 20px;}
+.quiz-result .score{font-family:var(--font-display); font-size:40px; color:var(--amber);}
+.quiz-result .rmsg{margin-top:8px; font-size:14.5px;}
+.quiz-result .ractions{margin-top:18px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+.hidden{display:none !important;}
+
+/* ---------- LATIHAN ---------- */
+.task-box{
+  background:var(--surface);
+  border:1px solid var(--border); border-left:3px solid var(--mint);
+  border-radius:10px; padding:20px 22px; margin:18px 0;
+}
+.task-box h4{color:var(--mint); font-size:14px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.05em;}
+.checklist{list-style:none; padding:0; margin:14px 0;}
+.checklist li{display:flex; align-items:flex-start; gap:10px; padding:6px 0; font-size:14.5px; line-height:1.55; color:var(--text-dim); max-width:100%;}
+.checklist li .bullet{color:var(--amber); flex-shrink:0; line-height:inherit;}
+.checklist li > span:last-child{flex:1 1 auto; min-width:0; overflow-wrap:break-word; word-break:break-word;}
+.submit-box{
+  background:var(--amber-soft); border:1px solid var(--amber); border-radius:10px; padding:18px 20px; margin:18px 0;
+}
+.submit-box h4{color:var(--amber); font-size:14px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.05em;}
+.submit-box p{font-size:14.5px; color:var(--text-dim); margin:8px 0 0;}
+
+/* ---------- Form identitas / kirim hasil ---------- */
+.idform{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0 20px;}
+@media (max-width:600px){.idform{grid-template-columns:1fr;}}
+.field label{
+  display:block; font-family:var(--font-mono); font-size:11px; text-transform:uppercase;
+  letter-spacing:.06em; margin-bottom:6px; color:var(--text-faint);
+}
+.field input{
+  width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px;
+  background:var(--surface-2); color:var(--text); font-family:var(--font-body); font-size:14px;
+}
+.field input:focus{outline:none; border-color:var(--amber);}
+#submitResult{
+  margin-top:16px; padding:14px 16px; border-radius:8px; background:var(--mint-soft);
+  border:1px solid var(--mint); color:var(--mint); font-size:13.5px; display:none;
+}
+.progress-recap{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:16px 0;
+}
+@media (max-width:600px){.progress-recap{grid-template-columns:1fr 1fr;}}
+.recap-chip{
+  background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:10px 12px;
+  font-family:var(--font-mono); font-size:12px; color:var(--text-dim); text-align:center;
+}
+.recap-chip b{display:block; font-size:16px; color:var(--mint); margin-top:2px;}
+
+/* ---------- STEP ACTIONS ---------- */
+.step-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:30px;}
+
+/* ---------- SUMBER ---------- */
+.sources{
+  max-width:880px; margin:0 auto; padding:40px 32px 80px;
+  border-top:1px solid var(--border-soft);
+}
+.sources h3{font-size:15px; font-family:var(--font-mono); color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em;}
+.sources ul{list-style:none; padding:0; margin:14px 0 0; display:grid; gap:8px;}
+.sources li{font-size:13.5px; color:var(--text-dim);}
+.sources li a{color:var(--violet); text-decoration:none;}
+.sources li a:hover{text-decoration:underline;}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed; bottom:calc(var(--statusbar-h) + 16px); left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--surface-3); border:1px solid var(--amber); color:var(--amber);
+  font-family:var(--font-mono); font-size:13px; padding:10px 18px; border-radius:8px;
+  opacity:0; transition:.25s; pointer-events:none; z-index:200; max-width:86vw; text-align:center;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+/* ---------- STATUS BAR ---------- */
+.statusbar{
+  position:fixed; left:0; right:0; bottom:0; height:var(--statusbar-h); z-index:60;
+  background:var(--amber); color:#1a1305;
+  font-family:var(--font-mono); font-size:12px; font-weight:600;
+  display:flex; align-items:center; padding:0 16px; gap:22px; overflow-x:auto; white-space:nowrap;
+}
+.statusbar span b{font-weight:700;}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:900px){
+  .grid2,.grid3{grid-template-columns:1fr;}
+  .sidebar{
+    position:fixed; top:var(--topbar-h); left:0; height:calc(100vh - var(--topbar-h));
+    width:78vw; max-width:300px; transform:translateX(-100%); transition:.2s; z-index:70;
+    box-shadow:20px 0 40px rgba(0,0,0,.4);
+  }
+  .sidebar.open{transform:translateX(0);}
+  .menu-toggle{display:block;}
+  .section{padding:46px 20px 10px;}
+  .hero{padding:40px 20px 20px;}
+  .sources{padding:40px 20px 80px;}
+}
+@media (max-width:520px){
+  .statusbar{font-size:10px; gap:12px;}
+  .console-body{font-size:12.5px; padding:14px 16px;}
+  .progress-recap{grid-template-columns:1fr 1fr;}
+}
+
+/* ---------- Guard loading (cek status Tampilkan dari Sheet) ---------- */
+#guard-loading{
+  position:fixed; inset:0; background:var(--bg); z-index:999;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+  font-family:var(--font-mono); color:var(--text-dim); font-size:13px;
+}
+#guard-loading .spin{
+  width:34px; height:34px; border-radius:50%;
+  border:3px solid var(--surface-2); border-top-color:var(--amber);
+  animation:guardspin .8s linear infinite;
+}
+@keyframes guardspin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div id="guard-loading">
+  <div class="spin"></div>
+  <div>Memuat materi…</div>
+</div>
+
+<div id="konten-utama" style="visibility:hidden">
+
+<div class="topbar">
+  <div class="dots"><span></span><span></span><span></span></div>
+  <div class="filename"><a href="../index.html" style="color:inherit; text-decoration:none; opacity:.7;">⌨️ Ekstra Komputer</a> &nbsp;›&nbsp; <b id="topbarStepName">Pertemuan 3 — CIN dan Operator</b></div>
+  <button class="menu-toggle" id="menuToggle">☰ Langkah</button>
+</div>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="group-label">Langkah Belajar</div>
+    <nav id="stepnav">
+      <a data-step="0"><span class="num">00</span>Beranda</a>
+      <a data-step="1"><span class="num">01</span>CIN: Satu Nilai <span class="lockicon">🔒</span></a>
+      <a data-step="2"><span class="num">02</span>CIN: Banyak Nilai <span class="lockicon">🔒</span></a>
+      <a data-step="3"><span class="num">03</span>Operator Aritmatika <span class="lockicon">🔒</span></a>
+      <a data-step="4"><span class="num">04</span>Perbandingan &amp; Logika <span class="lockicon">🔒</span></a>
+      <a data-step="5"><span class="num">05</span>Contoh Gabungan <span class="lockicon">🔒</span></a>
+      <a data-step="6"><span class="num">06</span>Latihan &amp; Kirim Hasil <span class="lockicon">🔒</span></a>
+    </nav>
+  </aside>
+
+  <main>
+
+    <!-- ============ STEP 0 — BERANDA ============ -->
+    <section class="step-panel active" id="step0">
+      <div class="hero">
+        <div class="terminal">
+          <div class="bar"><span></span><span></span><span></span><div class="tt">Dev-C++ — Console</div></div>
+          <div class="body" id="bootTerminal"></div>
+        </div>
+        <h1>Pertemuan 3: <span class="hl">CIN</span> dan Operator</h1>
+        <p class="sub">Setelah belajar variabel dan tipe data, sekarang kita belajar cara membuat program yang bisa <strong>membaca input dari pengguna</strong> (pakai <code>cin</code>), lalu mengolahnya dengan <strong>operator</strong>. Materi ini dibagi jadi langkah-langkah kecil — setiap selesai satu langkah, ada uji paham singkat dulu sebelum bisa lanjut ke langkah berikutnya.</p>
+        <div class="hero-tags">
+          <span class="tag">cin &gt;&gt;</span>
+          <span class="tag">Operator Aritmatika</span>
+          <span class="tag">Operator Perbandingan</span>
+          <span class="tag">Operator Logika</span>
+        </div>
+        <div class="hero-start">
+          <button class="btn primary" id="btnMulai">Mulai Belajar →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 1 — CIN SATU NILAI ============ -->
+    <section class="step-panel" id="step1">
+      <div class="section">
+        <div class="eyebrow">01 · CIN Dasar</div>
+        <h2>Membaca Satu Nilai dengan <code>cin</code></h2>
+        <p class="lead"><span class="term">cin</span> dipakai untuk <strong>membaca nilai yang diketik pengguna</strong> lewat keyboard, lalu menyimpannya ke sebuah variabel — kebalikan dari <code>cout</code> yang menampilkan nilai ke layar.</p>
+
+        <div class="grid2">
+          <div class="mini-card">
+            <div class="ic">📥 input</div>
+            <h4><code>cin</code></h4>
+            <p>Membaca nilai dari keyboard. Selalu dipasangkan dengan operator <code>&gt;&gt;</code> (arahnya ke variabel).</p>
+          </div>
+          <div class="mini-card">
+            <div class="ic">📤 output</div>
+            <h4><code>cout</code></h4>
+            <p>Menampilkan nilai ke layar. Dipasangkan dengan operator <code>&lt;&lt;</code> (arahnya ke layar).</p>
+          </div>
+        </div>
+        <p class="term-note">Cara gampang mengingat arah panahnya: <code>cin &gt;&gt; variabel</code> — nilai "masuk" ke variabel. <code>cout &lt;&lt; variabel</code> — nilai "keluar" ke layar.</p>
+
+        <div class="code-block protected-code">
+          <div class="code-head"><span>cin-satu-nilai.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
+          <div class="code-body">
+<div class="code-line" data-ln="1"><span class="tk-pre">#include</span> <span class="tk-str">&lt;iostream&gt;</span></div>
+<div class="code-line" data-ln="2"></div>
+<div class="code-line" data-ln="3"><span class="tk-kw">using</span> <span class="tk-kw">namespace</span> std<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="4"></div>
+<div class="code-line" data-ln="5"><span class="tk-type">int</span> <span class="tk-fn">main</span><span class="tk-punc">()</span> <span class="tk-punc">{</span></div>
+<div class="code-line" data-ln="6">    <span class="tk-type">int</span> umur<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="7">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Masukkan umur kamu: "</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="8">    cin <span class="tk-punc">&gt;&gt;</span> umur<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="9">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Umur kamu adalah "</span> <span class="tk-punc">&lt;&lt;</span> umur <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">" tahun"</span> <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="10">    <span class="tk-kw">return</span> <span class="tk-str">0</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="11"><span class="tk-punc">}</span></div>
+          </div>
+        </div>
+
+        <div class="console-block">
+          <div class="console-head"><span>Simulasi jendela Console setelah ditekan F11</span><button class="btn console-replay" data-replay="demo1">↻ Putar Ulang</button></div>
+          <div class="console-body" id="consoleBody1"></div>
+        </div>
+        <p class="term-note" style="margin-top:-6px;">Angka <span style="color:var(--amber); font-weight:600;">17</span> di atas adalah yang diketik pengguna setelah program berhenti menunggu di baris <code>cin &gt;&gt; umur;</code>.</p>
+
+        <div class="try-it">✏️ Ketik program ini sendiri di Dev-C++, jalankan dengan F11, lalu coba ketik angka umurmu sendiri.</div>
+
+        <!-- ===== GATE 1 ===== -->
+        <div class="gate-wrap">
+          <div class="gate-title">Uji Paham — Wajib Lolos untuk Lanjut</div>
+          <p class="gate-note">Jawab 5 soal berikut. Minimal <strong>4 dari 5 benar (80%)</strong> untuk membuka langkah berikutnya. Kalau belum lolos, baca ulang materi di atas lalu coba lagi dengan soal yang diacak ulang.</p>
+          <div class="quiz-card" id="g1Card">
+            <div class="q-progress" id="g1Progress"></div>
+            <div class="q-text" id="g1Text"></div>
+            <div class="q-options" id="g1Options"></div>
+            <div class="q-explain" id="g1Explain"></div>
+            <div class="q-nav">
+              <span style="font-family:var(--font-mono); font-size:12px; color:var(--text-faint);" id="g1ScoreLabel">Skor: 0</span>
+              <button class="btn primary" id="g1NextBtn" disabled>Soal Berikutnya →</button>
+            </div>
+          </div>
+          <div class="quiz-result" id="g1Result">
+            <div class="score" id="g1ResultScore">0/5</div>
+            <p class="rmsg" id="g1ResultMsg"></p>
+            <div class="ractions">
+              <button class="btn hidden" id="g1RetryBtn">Coba Lagi</button>
+              <button class="btn mint hidden" id="g1UnlockBtn">Lanjut ke Langkah 02 →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 2 — CIN BANYAK NILAI ============ -->
+    <section class="step-panel" id="step2">
+      <div class="section">
+        <div class="eyebrow">02 · CIN Lanjutan</div>
+        <h2>Membaca Banyak Nilai Sekaligus</h2>
+        <p class="lead">Kalau butuh beberapa nilai sekaligus, kita bisa merangkai <code>&gt;&gt;</code> berkali-kali dalam satu baris — tidak perlu satu <code>cin</code> untuk tiap variabel.</p>
+
+        <div class="code-block protected-code">
+          <div class="code-head"><span>cin-banyak-nilai.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
+          <div class="code-body">
+<div class="code-line" data-ln="1"><span class="tk-pre">#include</span> <span class="tk-str">&lt;iostream&gt;</span></div>
+<div class="code-line" data-ln="2"></div>
+<div class="code-line" data-ln="3"><span class="tk-kw">using</span> <span class="tk-kw">namespace</span> std<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="4"></div>
+<div class="code-line" data-ln="5"><span class="tk-type">int</span> <span class="tk-fn">main</span><span class="tk-punc">()</span> <span class="tk-punc">{</span></div>
+<div class="code-line" data-ln="6">    <span class="tk-type">int</span> hari<span class="tk-punc">,</span> bulan<span class="tk-punc">,</span> tahun<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="7">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Masukkan tanggal (hari bulan tahun): "</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="8">    cin <span class="tk-punc">&gt;&gt;</span> hari <span class="tk-punc">&gt;&gt;</span> bulan <span class="tk-punc">&gt;&gt;</span> tahun<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="9">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Tanggal: "</span> <span class="tk-punc">&lt;&lt;</span> hari <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"/"</span> <span class="tk-punc">&lt;&lt;</span> bulan <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"/"</span> <span class="tk-punc">&lt;&lt;</span> tahun <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="10">    <span class="tk-kw">return</span> <span class="tk-str">0</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="11"><span class="tk-punc">}</span></div>
+          </div>
+        </div>
+
+        <div class="console-block">
+          <div class="console-head"><span>Simulasi jendela Console setelah ditekan F11</span><button class="btn console-replay" data-replay="demo2">↻ Putar Ulang</button></div>
+          <div class="console-body" id="consoleBody2"></div>
+        </div>
+        <p class="term-note" style="margin-top:-6px;">Ketiga angka dipisah dengan <strong>spasi</strong> saat diketik, lalu masuk berurutan: nilai pertama ke <code>hari</code>, kedua ke <code>bulan</code>, ketiga ke <code>tahun</code>.</p>
+
+        <div class="callout-list">
+          <div class="callout warn">
+            <div class="cnum">!</div>
+            <div>
+              <h4>Hati-hati: <code>cin &gt;&gt;</code> berhenti di spasi</h4>
+              <p>Untuk tipe <code>string</code>, <code>cin &gt;&gt;</code> hanya membaca sampai spasi pertama. Kalau pengguna mengetik <code>Made Wirawan</code>, variabel <code>string</code> hanya akan berisi <code>Made</code> saja — kata "Wirawan" tidak ikut terbaca. (Untuk membaca kalimat penuh, dipakai perintah lain yang akan dibahas di pertemuan selanjutnya.)</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="try-it">✏️ Ketik program ini sendiri, coba jalankan dengan mengetik tiga angka dipisah spasi.</div>
+
+        <!-- ===== GATE 2 ===== -->
+        <div class="gate-wrap">
+          <div class="gate-title">Uji Paham — Wajib Lolos untuk Lanjut</div>
+          <p class="gate-note">5 soal, minimal <strong>4 benar (80%)</strong> untuk membuka langkah Operator Aritmatika.</p>
+          <div class="quiz-card" id="g2Card">
+            <div class="q-progress" id="g2Progress"></div>
+            <div class="q-text" id="g2Text"></div>
+            <div class="q-options" id="g2Options"></div>
+            <div class="q-explain" id="g2Explain"></div>
+            <div class="q-nav">
+              <span style="font-family:var(--font-mono); font-size:12px; color:var(--text-faint);" id="g2ScoreLabel">Skor: 0</span>
+              <button class="btn primary" id="g2NextBtn" disabled>Soal Berikutnya →</button>
+            </div>
+          </div>
+          <div class="quiz-result" id="g2Result">
+            <div class="score" id="g2ResultScore">0/5</div>
+            <p class="rmsg" id="g2ResultMsg"></p>
+            <div class="ractions">
+              <button class="btn hidden" id="g2RetryBtn">Coba Lagi</button>
+              <button class="btn mint hidden" id="g2UnlockBtn">Lanjut ke Langkah 03 →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 3 — OPERATOR ARITMATIKA ============ -->
+    <section class="step-panel" id="step3">
+      <div class="section">
+        <div class="eyebrow">03 · Operator</div>
+        <h2>Operator Aritmatika</h2>
+        <p class="lead">Operator aritmatika dipakai untuk <strong>menghitung</strong> nilai dari dua angka atau lebih.</p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Operator</th><th>Arti</th><th>Contoh</th><th>Hasil</th></tr></thead>
+            <tbody>
+              <tr><td class="op-sym">+</td><td>Penjumlahan</td><td><code>5 + 2</code></td><td>7</td></tr>
+              <tr><td class="op-sym">-</td><td>Pengurangan</td><td><code>5 - 2</code></td><td>3</td></tr>
+              <tr><td class="op-sym">*</td><td>Perkalian</td><td><code>5 * 2</code></td><td>10</td></tr>
+              <tr><td class="op-sym">/</td><td>Pembagian</td><td><code>5 / 2</code></td><td>2 (kalau keduanya int)</td></tr>
+              <tr><td class="op-sym">%</td><td>Sisa bagi (modulus)</td><td><code>5 % 2</code></td><td>1</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="term-note" style="margin-top:-6px;">Perhatikan baris <code>/</code>: kalau <strong>kedua</strong> variabelnya bertipe <code>int</code>, hasil pembagian dibulatkan ke bawah (bagian desimal dibuang). Supaya hasilnya tetap punya desimal (misal 17/5 = 3.4), minimal salah satu variabelnya harus bertipe <code>double</code> atau <code>float</code>.</p>
+
+        <div class="code-block protected-code">
+          <div class="code-head"><span>operator-aritmatika.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
+          <div class="code-body">
+<div class="code-line" data-ln="1"><span class="tk-pre">#include</span> <span class="tk-str">&lt;iostream&gt;</span></div>
+<div class="code-line" data-ln="2"></div>
+<div class="code-line" data-ln="3"><span class="tk-kw">using</span> <span class="tk-kw">namespace</span> std<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="4"></div>
+<div class="code-line" data-ln="5"><span class="tk-type">int</span> <span class="tk-fn">main</span><span class="tk-punc">()</span> <span class="tk-punc">{</span></div>
+<div class="code-line" data-ln="6">    <span class="tk-type">int</span> a<span class="tk-punc">,</span> b<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="7">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Masukkan dua bilangan bulat: "</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="8">    cin <span class="tk-punc">&gt;&gt;</span> a <span class="tk-punc">&gt;&gt;</span> b<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="9">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Jumlah: "</span> <span class="tk-punc">&lt;&lt;</span> a <span class="tk-punc">+</span> b <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="10">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Selisih: "</span> <span class="tk-punc">&lt;&lt;</span> a <span class="tk-punc">-</span> b <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="11">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Kali: "</span> <span class="tk-punc">&lt;&lt;</span> a <span class="tk-punc">*</span> b <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="12">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Bagi: "</span> <span class="tk-punc">&lt;&lt;</span> a <span class="tk-punc">/</span> b <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="13">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Sisa Bagi: "</span> <span class="tk-punc">&lt;&lt;</span> a <span class="tk-punc">%</span> b <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="14">    <span class="tk-kw">return</span> <span class="tk-str">0</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="15"><span class="tk-punc">}</span></div>
+          </div>
+        </div>
+
+        <div class="console-block">
+          <div class="console-head"><span>Simulasi jendela Console setelah ditekan F11</span><button class="btn console-replay" data-replay="demo3">↻ Putar Ulang</button></div>
+          <div class="console-body" id="consoleBody3"></div>
+        </div>
+
+        <div class="try-it">✏️ Ketik program ini sendiri, coba dengan angka yang berbeda dan tebak hasilnya sebelum menjalankan F11.</div>
+
+        <!-- ===== GATE 3 ===== -->
+        <div class="gate-wrap">
+          <div class="gate-title">Uji Paham — Wajib Lolos untuk Lanjut</div>
+          <p class="gate-note">5 soal, minimal <strong>4 benar (80%)</strong> untuk membuka langkah Operator Perbandingan &amp; Logika.</p>
+          <div class="quiz-card" id="g3Card">
+            <div class="q-progress" id="g3Progress"></div>
+            <div class="q-text" id="g3Text"></div>
+            <div class="q-options" id="g3Options"></div>
+            <div class="q-explain" id="g3Explain"></div>
+            <div class="q-nav">
+              <span style="font-family:var(--font-mono); font-size:12px; color:var(--text-faint);" id="g3ScoreLabel">Skor: 0</span>
+              <button class="btn primary" id="g3NextBtn" disabled>Soal Berikutnya →</button>
+            </div>
+          </div>
+          <div class="quiz-result" id="g3Result">
+            <div class="score" id="g3ResultScore">0/5</div>
+            <p class="rmsg" id="g3ResultMsg"></p>
+            <div class="ractions">
+              <button class="btn hidden" id="g3RetryBtn">Coba Lagi</button>
+              <button class="btn mint hidden" id="g3UnlockBtn">Lanjut ke Langkah 04 →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 4 — OPERATOR PERBANDINGAN & LOGIKA ============ -->
+    <section class="step-panel" id="step4">
+      <div class="section">
+        <div class="eyebrow">04 · Operator</div>
+        <h2>Operator Perbandingan &amp; Logika</h2>
+        <p class="lead">Operator perbandingan dan logika menghasilkan nilai <code>bool</code> — <code>true</code> (ditampilkan sebagai <strong>1</strong>) atau <code>false</code> (ditampilkan sebagai <strong>0</strong>).</p>
+
+        <h3 style="font-size:18px;">Operator Perbandingan</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Operator</th><th>Arti</th><th>Contoh</th><th>Hasil</th></tr></thead>
+            <tbody>
+              <tr><td class="op-sym">==</td><td>Sama dengan</td><td><code>5 == 5</code></td><td>1 (true)</td></tr>
+              <tr><td class="op-sym">!=</td><td>Tidak sama dengan</td><td><code>5 != 3</code></td><td>1 (true)</td></tr>
+              <tr><td class="op-sym">&gt;</td><td>Lebih besar</td><td><code>5 &gt; 3</code></td><td>1 (true)</td></tr>
+              <tr><td class="op-sym">&lt;</td><td>Lebih kecil</td><td><code>5 &lt; 3</code></td><td>0 (false)</td></tr>
+              <tr><td class="op-sym">&gt;=</td><td>Lebih besar sama dengan</td><td><code>5 &gt;= 5</code></td><td>1 (true)</td></tr>
+              <tr><td class="op-sym">&lt;=</td><td>Lebih kecil sama dengan</td><td><code>5 &lt;= 3</code></td><td>0 (false)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="term-note" style="margin-top:-6px;">Jangan tertukar: <code>=</code> (satu sama dengan) dipakai untuk <strong>mengisi nilai</strong>, sedangkan <code>==</code> (dua sama dengan) dipakai untuk <strong>membandingkan</strong>.</p>
+
+        <h3 style="font-size:18px; margin-top:30px;">Operator Logika</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Operator</th><th>Arti</th><th>Bernilai true jika...</th></tr></thead>
+            <tbody>
+              <tr><td class="op-sym">&amp;&amp;</td><td>AND</td><td>kedua kondisi bernilai true</td></tr>
+              <tr><td class="op-sym">||</td><td>OR</td><td>minimal salah satu kondisi bernilai true</td></tr>
+              <tr><td class="op-sym">!</td><td>NOT</td><td>membalik nilai: true jadi false, false jadi true</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-block protected-code">
+          <div class="code-head"><span>operator-perbandingan.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
+          <div class="code-body">
+<div class="code-line" data-ln="1"><span class="tk-pre">#include</span> <span class="tk-str">&lt;iostream&gt;</span></div>
+<div class="code-line" data-ln="2"></div>
+<div class="code-line" data-ln="3"><span class="tk-kw">using</span> <span class="tk-kw">namespace</span> std<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="4"></div>
+<div class="code-line" data-ln="5"><span class="tk-type">int</span> <span class="tk-fn">main</span><span class="tk-punc">()</span> <span class="tk-punc">{</span></div>
+<div class="code-line" data-ln="6">    <span class="tk-type">int</span> nilai<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="7">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Masukkan nilai ujian: "</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="8">    cin <span class="tk-punc">&gt;&gt;</span> nilai<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="9">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Lulus (&gt;=75): "</span> <span class="tk-punc">&lt;&lt;</span> <span class="tk-punc">(</span>nilai <span class="tk-punc">&gt;=</span> <span class="tk-str">75</span><span class="tk-punc">)</span> <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="10">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Nilai sempurna (==100): "</span> <span class="tk-punc">&lt;&lt;</span> <span class="tk-punc">(</span>nilai <span class="tk-punc">==</span> <span class="tk-str">100</span><span class="tk-punc">)</span> <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="11">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Rentang aman (&gt;=75 dan &lt;=100): "</span> <span class="tk-punc">&lt;&lt;</span> <span class="tk-punc">(</span>nilai <span class="tk-punc">&gt;=</span> <span class="tk-str">75</span> <span class="tk-punc">&amp;&amp;</span> nilai <span class="tk-punc">&lt;=</span> <span class="tk-str">100</span><span class="tk-punc">)</span> <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="12">    <span class="tk-kw">return</span> <span class="tk-str">0</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="13"><span class="tk-punc">}</span></div>
+          </div>
+        </div>
+
+        <div class="console-block">
+          <div class="console-head"><span>Simulasi jendela Console setelah ditekan F11</span><button class="btn console-replay" data-replay="demo4">↻ Putar Ulang</button></div>
+          <div class="console-body" id="consoleBody4"></div>
+        </div>
+        <p class="term-note" style="margin-top:-6px;">Perhatikan hasilnya ditampilkan sebagai angka <strong>1</strong> atau <strong>0</strong>, bukan tulisan "true"/"false" — ini kebiasaan bawaan <code>cout</code> untuk nilai <code>bool</code>.</p>
+
+        <div class="try-it">✏️ Ketik program ini sendiri, coba masukkan nilai yang berbeda-beda dan tebak hasilnya dulu sebelum menjalankan F11.</div>
+
+        <!-- ===== GATE 4 ===== -->
+        <div class="gate-wrap">
+          <div class="gate-title">Uji Paham — Wajib Lolos untuk Lanjut</div>
+          <p class="gate-note">5 soal, minimal <strong>4 benar (80%)</strong> untuk membuka Contoh Program Gabungan.</p>
+          <div class="quiz-card" id="g4Card">
+            <div class="q-progress" id="g4Progress"></div>
+            <div class="q-text" id="g4Text"></div>
+            <div class="q-options" id="g4Options"></div>
+            <div class="q-explain" id="g4Explain"></div>
+            <div class="q-nav">
+              <span style="font-family:var(--font-mono); font-size:12px; color:var(--text-faint);" id="g4ScoreLabel">Skor: 0</span>
+              <button class="btn primary" id="g4NextBtn" disabled>Soal Berikutnya →</button>
+            </div>
+          </div>
+          <div class="quiz-result" id="g4Result">
+            <div class="score" id="g4ResultScore">0/5</div>
+            <p class="rmsg" id="g4ResultMsg"></p>
+            <div class="ractions">
+              <button class="btn hidden" id="g4RetryBtn">Coba Lagi</button>
+              <button class="btn mint hidden" id="g4UnlockBtn">Lanjut ke Langkah 05 →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 5 — CONTOH GABUNGAN ============ -->
+    <section class="step-panel" id="step5">
+      <div class="section">
+        <div class="eyebrow">05 · Praktik Gabungan</div>
+        <h2>Contoh Program Gabungan</h2>
+        <p class="lead">Sekarang kita gabungkan <code>cin</code> dan operator dalam satu program sederhana: menghitung rata-rata nilai dan status lulus siswa.</p>
+
+        <div class="code-block protected-code">
+          <div class="code-head"><span>gabungan.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
+          <div class="code-body">
+<div class="code-line" data-ln="1"><span class="tk-pre">#include</span> <span class="tk-str">&lt;iostream&gt;</span></div>
+<div class="code-line" data-ln="2"><span class="tk-pre">#include</span> <span class="tk-str">&lt;string&gt;</span></div>
+<div class="code-line" data-ln="3"></div>
+<div class="code-line" data-ln="4"><span class="tk-kw">using</span> <span class="tk-kw">namespace</span> std<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="5"></div>
+<div class="code-line" data-ln="6"><span class="tk-type">int</span> <span class="tk-fn">main</span><span class="tk-punc">()</span> <span class="tk-punc">{</span></div>
+<div class="code-line" data-ln="7">    string nama<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="8">    <span class="tk-type">int</span> nilaiUjian<span class="tk-punc">,</span> nilaiTugas<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="9">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Nama: "</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="10">    cin <span class="tk-punc">&gt;&gt;</span> nama<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="11">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Nilai Ujian: "</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="12">    cin <span class="tk-punc">&gt;&gt;</span> nilaiUjian<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="13">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Nilai Tugas: "</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="14">    cin <span class="tk-punc">&gt;&gt;</span> nilaiTugas<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="15"></div>
+<div class="code-line" data-ln="16">    <span class="tk-type">int</span> rataRata <span class="tk-punc">=</span> <span class="tk-punc">(</span>nilaiUjian <span class="tk-punc">+</span> nilaiTugas<span class="tk-punc">)</span> <span class="tk-punc">/</span> <span class="tk-str">2</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="17">    <span class="tk-type">bool</span> lulus <span class="tk-punc">=</span> rataRata <span class="tk-punc">&gt;=</span> <span class="tk-str">75</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="18"></div>
+<div class="code-line" data-ln="19">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Halo, "</span> <span class="tk-punc">&lt;&lt;</span> nama <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="20">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Rata-rata: "</span> <span class="tk-punc">&lt;&lt;</span> rataRata <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="21">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Status Lulus: "</span> <span class="tk-punc">&lt;&lt;</span> lulus <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="22">    <span class="tk-kw">return</span> <span class="tk-str">0</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="23"><span class="tk-punc">}</span></div>
+          </div>
+        </div>
+
+        <div class="console-block">
+          <div class="console-head"><span>Simulasi jendela Console setelah ditekan F11</span><button class="btn console-replay" data-replay="demo5">↻ Putar Ulang</button></div>
+          <div class="console-body" id="consoleBody5"></div>
+        </div>
+
+        <h3 style="margin-top:34px; font-size:18px;">Penjelasan Bagian Penting</h3>
+        <div class="explain-list">
+          <div class="explain-item">
+            <div class="badge">10</div>
+            <div>
+              <code class="line-code">cin &gt;&gt; nama;</code>
+              <p>Karena <code>nama</code> bertipe <code>string</code>, ingat: sebaiknya diketik satu kata saja (tanpa spasi) supaya seluruhnya ikut terbaca — sesuai catatan di Langkah 02.</p>
+            </div>
+          </div>
+          <div class="explain-item">
+            <div class="badge">16</div>
+            <div>
+              <code class="line-code">int rataRata = (nilaiUjian + nilaiTugas) / 2;</code>
+              <p>Tanda kurung dipakai supaya penjumlahan dihitung <strong>lebih dulu</strong>, baru hasilnya dibagi 2 — sama seperti aturan matematika biasa.</p>
+            </div>
+          </div>
+          <div class="explain-item">
+            <div class="badge">17</div>
+            <div>
+              <code class="line-code">bool lulus = rataRata &gt;= 75;</code>
+              <p>Hasil operator perbandingan (yang bertipe <code>bool</code>) bisa langsung disimpan ke sebuah variabel, tidak harus langsung dipakai di <code>cout</code>.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="try-it">✏️ Ketik program ini sendiri, jangan copy-paste — supaya terbiasa dengan penulisannya.</div>
+
+        <div class="step-actions">
+          <button class="btn primary" id="btnLanjutLatihan">Lanjut ke Latihan →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 6 — LATIHAN & KIRIM HASIL ============ -->
+    <section class="step-panel" id="step6">
+      <div class="section">
+        <div class="eyebrow">06 · Praktik Mandiri</div>
+        <h2>Latihan: Nilai Akhir dan Status Kelulusan</h2>
+        <p class="lead">Latihan ini adalah <strong>variasi dari Contoh Program Gabungan</strong> di Langkah 05 — masih sama-sama memakai <code>cin</code>, operator aritmatika, dan operator perbandingan, hanya datanya sedikit berbeda. (Menghitung luas &amp; keliling bangun datar akan kita bahas di pertemuan selanjutnya.)</p>
+        <div class="task-box">
+          <h4>Tugas</h4>
+          <p style="margin-top:10px;">Lengkapi kerangka program di bawah supaya bisa membaca <strong>nama</strong>, <strong>nilai harian</strong>, dan <strong>nilai ujian</strong> dari pengguna lewat <code>cin</code>, lalu:</p>
+          <ul class="checklist">
+            <li><span class="bullet">▸</span><span>Hitung <code>rataRata</code> dari nilai harian dan nilai ujian, memakai operator <code>+</code> dan <code>/</code></span></li>
+            <li><span class="bullet">▸</span><span>Buat variabel <code>bool</code> bernama <code>lulus</code>, isinya hasil <code>rataRata &gt;= 70</code></span></li>
+            <li><span class="bullet">▸</span><span>Tampilkan nama, rata-rata, dan status lulus dengan <code>cout</code></span></li>
+          </ul>
+        </div>
+
+        <div class="code-block protected-code">
+          <div class="code-head"><span>Kerangka Awal — nilaiakhir.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
+          <div class="code-body">
+<div class="code-line" data-ln="1"><span class="tk-pre">#include</span> <span class="tk-str">&lt;iostream&gt;</span></div>
+<div class="code-line" data-ln="2"><span class="tk-pre">#include</span> <span class="tk-str">&lt;string&gt;</span></div>
+<div class="code-line" data-ln="3"></div>
+<div class="code-line" data-ln="4"><span class="tk-kw">using</span> <span class="tk-kw">namespace</span> std<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="5"></div>
+<div class="code-line" data-ln="6"><span class="tk-type">int</span> <span class="tk-fn">main</span><span class="tk-punc">()</span> <span class="tk-punc">{</span></div>
+<div class="code-line" data-ln="7">    string nama<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="8">    <span class="tk-type">int</span> nilaiHarian<span class="tk-punc">,</span> nilaiUjian<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="9">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Nama: "</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="10">    cin <span class="tk-punc">&gt;&gt;</span> ______<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="11">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Nilai Harian: "</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="12">    cin <span class="tk-punc">&gt;&gt;</span> ______<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="13">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Nilai Ujian: "</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="14">    cin <span class="tk-punc">&gt;&gt;</span> ______<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="15"></div>
+<div class="code-line" data-ln="16">    <span class="tk-type">int</span> rataRata <span class="tk-punc">=</span> <span class="tk-punc">(</span>______ <span class="tk-punc">+</span> ______<span class="tk-punc">)</span> <span class="tk-punc">/</span> <span class="tk-str">2</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="17">    <span class="tk-com">// TODO: buat variabel bool bernama lulus, isinya (rataRata &gt;= 70)</span></div>
+<div class="code-line" data-ln="18"></div>
+<div class="code-line" data-ln="19">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Halo, "</span> <span class="tk-punc">&lt;&lt;</span> nama <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="20">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Rata-rata: "</span> <span class="tk-punc">&lt;&lt;</span> rataRata <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="21">    <span class="tk-com">// TODO: tampilkan status lulus dengan cout</span></div>
+<div class="code-line" data-ln="22"></div>
+<div class="code-line" data-ln="23">    <span class="tk-kw">return</span> <span class="tk-str">0</span><span class="tk-punc">;</span></div>
+<div class="code-line" data-ln="24"><span class="tk-punc">}</span></div>
+          </div>
+        </div>
+        <p style="font-size:13.5px;">Ganti setiap tanda <code>______</code> dengan nama variabel yang sesuai, lalu lengkapi dua baris TODO (baris 17 dan 21).</p>
+
+        <div class="submit-box">
+          <h4>Cara Mengumpulkan</h4>
+          <p>Tugas ini dikumpulkan di LMS, berupa screenshot yang menampilkan kode program sekaligus hasil tampilan Console setelah menekan <strong>F11</strong>. Kumpulkan di bagian <strong>"Latihan 3 – CIN dan Operator"</strong> pada LMS.</p>
+        </div>
+
+        <h3 style="font-size:17px; margin-top:38px;">Kirim Hasil Uji Paham ke Pembina</h3>
+        <p>Isi data di bawah untuk mengirim skor 4 uji paham yang sudah kamu selesaikan di langkah 01–04.</p>
+        <div class="progress-recap" id="progressRecap">
+          <div class="recap-chip">CIN Satu Nilai<b id="recapG1">-</b></div>
+          <div class="recap-chip">CIN Banyak Nilai<b id="recapG2">-</b></div>
+          <div class="recap-chip">Operator Aritmatika<b id="recapG3">-</b></div>
+          <div class="recap-chip">Perbandingan &amp; Logika<b id="recapG4">-</b></div>
+        </div>
+        <div class="quiz-card">
+          <div class="idform" id="formIndividu">
+            <div class="field"><label for="qNama">Nama Lengkap</label><input id="qNama" type="text" placeholder="Nama kamu"></div>
+            <div class="field"><label for="qKelas">Kelas</label><input id="qKelas" type="text" placeholder="Contoh: XII 1"></div>
+            <div class="field"><label for="qNis">NIS</label><input id="qNis" type="text" placeholder="Nomor Induk Siswa"></div>
+            <div class="field"><label for="qAbsen">No. Absen</label><input id="qAbsen" type="text" placeholder="Nomor absen"></div>
+          </div>
+          <button class="btn primary" id="submitHasil">Kirim Hasil</button>
+          <div id="submitResult"></div>
+        </div>
+      </div>
+
+      <div class="sources">
+        <h3>Sumber Materi</h3>
+        <ul>
+          <li>cppreference.com — <a href="https://en.cppreference.com/w/cpp/io/basic_istream.html" target="_blank" rel="noopener">std::basic_istream (cin)</a></li>
+          <li>GeeksforGeeks — <a href="https://www.geeksforgeeks.org/cpp/basic-input-output-cpp/" target="_blank" rel="noopener">Basic Input / Output in C++</a></li>
+          <li>GeeksforGeeks — <a href="https://www.geeksforgeeks.org/cpp/operators-in-cpp/" target="_blank" rel="noopener">Operators in C++</a></li>
+          <li>Learn C++ (learncpp.com) — <a href="https://www.learncpp.com/cpp-tutorial/introduction-to-iostream-cout-cin-and-endl/" target="_blank" rel="noopener">Introduction to iostream: cout, cin, and endl</a></li>
+          <li>W3Schools — <a href="https://www.w3schools.com/cpp/cpp_operators.asp" target="_blank" rel="noopener">C++ Operators</a></li>
+        </ul>
+      </div>
+
+      <footer style="text-align:center; padding:24px 20px; font-family:var(--font-mono); font-size:12.5px; color:var(--text-faint); max-width:520px; margin:0 auto;">"Program yang bisa membaca input dari penggunanya adalah program yang benar-benar hidup." <span style="color:var(--amber);">💛</span> Semangat belajar, Ekstra Komputer!</footer>
+    </section>
+
+  </main>
+</div>
+
+<div class="statusbar" id="statusbar">
+  <span id="sbStep">Langkah 0 dari 6</span>
+  <span id="sbProgress">Progres: <b>0%</b></span>
+  <span>UTF-8</span>
+  <span style="margin-left:auto;">Siap</span>
+</div>
+
+<div class="toast" id="toast">Yuk, coba ketik sendiri kodenya ya 🙂</div>
+
+</div><!-- /#konten-utama -->
+
+<script>const MODUL_ID = "EKS-CPP-03";</script>
+<script>
+  // Jaring pengaman preview: kalau config.js/guard.js belum ada di folder
+  // yang sama, atau pengecekan ke Google Sheet lambat/menggantung, materi
+  // tetap otomatis ditampilkan — tidak nyangkut selamanya di "Memuat materi...".
+  let __revealed = false;
+  function __forceReveal(){
+    if(__revealed) return;
+    __revealed = true;
+    const k = document.getElementById('konten-utama');
+    if(k) k.style.visibility = 'visible';
+    const l = document.getElementById('guard-loading');
+    if(l) l.remove();
+  }
+  setTimeout(__forceReveal, 4000);
+</script>
+<script src="../config.js" onerror="__forceReveal()"></script>
+<script src="../guard.js" onerror="__forceReveal()"></script>
+
+<script>
+/* ---------------- Terminal boot animation ---------------- */
+(function(){
+  const el = document.getElementById('bootTerminal');
+  const steps = [
+    {t:'prompt', text:'$ g++ pertemuan3.cpp -o pertemuan3'},
+    {t:'line', text:'Compiling...'},
+    {t:'out', text:'✓ Compilation successful'},
+    {t:'prompt', text:'$ ./pertemuan3'},
+  ];
+  let i = 0;
+  function typeLine(step, cb){
+    const div = document.createElement('div');
+    div.className = 'line';
+    const span = document.createElement('span');
+    span.className = step.t === 'prompt' ? 'prompt' : (step.t === 'out' ? 'out' : '');
+    div.appendChild(span);
+    el.appendChild(div);
+    let j = 0;
+    const iv = setInterval(()=>{
+      span.textContent += step.text[j];
+      j++;
+      if(j >= step.text.length){ clearInterval(iv); cb(); }
+    }, 14);
+  }
+  function next(){
+    if(i >= steps.length){
+      const cur = document.createElement('span');
+      cur.className = 'cursor';
+      el.appendChild(cur);
+      return;
+    }
+    typeLine(steps[i], ()=>{ i++; setTimeout(next, 220); });
+  }
+  next();
+})();
+
+/* ---------------- Cegah copy-paste kode ---------------- */
+let toastTimer = null;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg || 'Yuk, coba ketik sendiri kodenya ya 🙂';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 1800);
+}
+document.querySelectorAll('.protected-code').forEach(block=>{
+  block.addEventListener('copy', e=>{ e.preventDefault(); showToast(); });
+  block.addEventListener('cut', e=>{ e.preventDefault(); showToast(); });
+  block.addEventListener('contextmenu', e=>{ e.preventDefault(); showToast(); });
+  block.addEventListener('dragstart', e=> e.preventDefault());
+});
+document.addEventListener('keydown', e=>{
+  const sel = window.getSelection();
+  const inProtected = sel && sel.anchorNode && (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement)?.closest?.('.protected-code');
+  if((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'x') && inProtected){
+    e.preventDefault();
+    showToast();
+  }
+});
+
+/* ---------------- Util ---------------- */
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+/* ---------------- Animasi Console: simulasi mengetik input lalu Enter ---------------- */
+function animateConsole(bodyId, seq){
+  const body = document.getElementById(bodyId);
+  if(!body) return;
+  body.innerHTML = '';
+  let i = 0;
+
+  function typeInput(step, cb){
+    const line = document.createElement('div');
+    line.className = 'cline';
+    const promptSpan = document.createElement('span');
+    promptSpan.textContent = step.prompt;
+    const inputSpan = document.createElement('span');
+    inputSpan.className = 'cin-val';
+    const cursor = document.createElement('span');
+    cursor.className = 'console-cursor';
+    cursor.textContent = '_';
+    line.appendChild(promptSpan);
+    line.appendChild(inputSpan);
+    line.appendChild(cursor);
+    body.appendChild(line);
+    let k = 0;
+    function typeChar(){
+      if(k < step.value.length){
+        inputSpan.textContent += step.value[k];
+        k++;
+        setTimeout(typeChar, 85);
+      } else {
+        cursor.remove();
+        setTimeout(cb, 420);
+      }
+    }
+    setTimeout(typeChar, 350);
+  }
+
+  function showLines(lines, cb){
+    let idx = 0;
+    function next(){
+      if(idx < lines.length){
+        const l = document.createElement('div');
+        l.className = 'cline';
+        l.textContent = lines[idx];
+        body.appendChild(l);
+        idx++;
+        setTimeout(next, 300);
+      } else {
+        cb();
+      }
+    }
+    next();
+  }
+
+  function step(){
+    if(i >= seq.length) return;
+    const s = seq[i];
+    if(s.type === 'input'){
+      typeInput(s, ()=>{ i++; setTimeout(step, 250); });
+    } else if(s.type === 'lines'){
+      showLines(s.lines, ()=>{ i++; setTimeout(step, 150); });
+    } else if(s.type === 'meta'){
+      const meta = document.createElement('div');
+      meta.className = 'cmeta';
+      meta.innerHTML = s.text;
+      body.appendChild(meta);
+      i++; step();
+    }
+  }
+  step();
+}
+
+const consoleMeta = 'Process exited after 0.01 seconds with return value 0<br>Press any key to continue . . .';
+
+const consoleDemos = {
+  demo1: [
+    { type:'input', prompt:'Masukkan umur kamu: ', value:'17' },
+    { type:'lines', lines:['Umur kamu adalah 17 tahun'] },
+    { type:'meta', text: consoleMeta }
+  ],
+  demo2: [
+    { type:'input', prompt:'Masukkan tanggal (hari bulan tahun): ', value:'17 8 1945' },
+    { type:'lines', lines:['Tanggal: 17/8/1945'] },
+    { type:'meta', text: consoleMeta }
+  ],
+  demo3: [
+    { type:'input', prompt:'Masukkan dua bilangan bulat: ', value:'17 5' },
+    { type:'lines', lines:['Jumlah: 22','Selisih: 12','Kali: 85','Bagi: 3','Sisa Bagi: 2'] },
+    { type:'meta', text: consoleMeta }
+  ],
+  demo4: [
+    { type:'input', prompt:'Masukkan nilai ujian: ', value:'80' },
+    { type:'lines', lines:['Lulus (>=75): 1','Nilai sempurna (==100): 0','Rentang aman (>=75 dan <=100): 1'] },
+    { type:'meta', text: consoleMeta }
+  ],
+  demo5: [
+    { type:'input', prompt:'Nama: ', value:'Kadek' },
+    { type:'input', prompt:'Nilai Ujian: ', value:'85' },
+    { type:'input', prompt:'Nilai Tugas: ', value:'75' },
+    { type:'lines', lines:['Halo, Kadek','Rata-rata: 80','Status Lulus: 1'] },
+    { type:'meta', text: consoleMeta }
+  ]
+};
+
+function putarDemo(key){
+  const targetId = { demo1:'consoleBody1', demo2:'consoleBody2', demo3:'consoleBody3', demo4:'consoleBody4', demo5:'consoleBody5' }[key];
+  animateConsole(targetId, consoleDemos[key]);
+}
+document.querySelectorAll('.console-replay').forEach(btn=>{
+  btn.addEventListener('click', ()=> putarDemo(btn.dataset.replay));
+});
+const demoPerStep = { 1:'demo1', 2:'demo2', 3:'demo3', 4:'demo4', 5:'demo5' };
+const demoSudahDiputar = {};
+
+/* ---------------- STEPPER: navigasi & gerbang antar langkah ---------------- */
+const totalSteps = 6; // langkah 1..6 (langkah 0 = beranda, selalu terbuka)
+let currentStep = 0;
+let maxUnlocked = 1; // langkah 0 & 1 terbuka sejak awal
+
+const stepNames = {
+  0:'Beranda', 1:'CIN: Satu Nilai', 2:'CIN: Banyak Nilai',
+  3:'Operator Aritmatika', 4:'Perbandingan & Logika',
+  5:'Contoh Gabungan', 6:'Latihan & Kirim Hasil'
+};
+const navLinks = [...document.querySelectorAll('#stepnav a')];
+const sidebar = document.getElementById('sidebar');
+
+function refreshNav(){
+  navLinks.forEach(a=>{
+    const n = parseInt(a.dataset.step, 10);
+    a.classList.toggle('active', n === currentStep);
+    a.classList.toggle('locked', n > maxUnlocked);
+    a.classList.toggle('done', n < maxUnlocked && n !== 0);
+    const lock = a.querySelector('.lockicon');
+    if(lock) lock.style.display = (n > maxUnlocked) ? 'inline' : 'none';
+  });
+  document.getElementById('sbStep').textContent = 'Langkah ' + currentStep + ' dari ' + totalSteps;
+  const pct = Math.round((maxUnlocked / (totalSteps + 1)) * 100);
+  document.getElementById('sbProgress').innerHTML = 'Progres: <b>' + pct + '%</b>';
+  document.getElementById('topbarStepName').textContent = 'Pertemuan 3 — ' + stepNames[currentStep];
+}
+
+function goStep(n){
+  if(n > maxUnlocked){
+    showToast('Selesaikan uji paham langkah ini dulu ya 🔐');
+    return;
+  }
+  document.querySelectorAll('.step-panel').forEach(s=> s.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  currentStep = n;
+  refreshNav();
+  window.scrollTo({top:0, behavior:'smooth'});
+  sidebar.classList.remove('open');
+  if(demoPerStep[n]){
+    putarDemo(demoPerStep[n]);
+  }
+}
+
+function unlockStep(n){
+  if(n > maxUnlocked) maxUnlocked = n;
+  refreshNav();
+}
+
+navLinks.forEach(a=>{
+  a.addEventListener('click', ()=> goStep(parseInt(a.dataset.step, 10)));
+});
+document.getElementById('btnMulai').addEventListener('click', ()=> goStep(1));
+document.getElementById('btnLanjutLatihan').addEventListener('click', ()=>{
+  unlockStep(6);
+  goStep(6);
+});
+document.getElementById('menuToggle').addEventListener('click', ()=> sidebar.classList.toggle('open'));
+refreshNav();
+
+/* ---------------- Engine kuis gerbang (reusable untuk 4 gate) ---------------- */
+const hasilGate = {};
+
+function buatGate(prefix, pool, jumlahSoal, ambangLolos, onLolos){
+  const el = id => document.getElementById(prefix + id);
+  const state = { data:[], index:0, skor:0, dijawab:false };
+
+  function acakSoal(){
+    const dipilih = shuffle(pool).slice(0, jumlahSoal);
+    return dipilih.map(item=>{
+      const opsiBerlabel = item.options.map((opt, idx)=> ({opt, benar: idx === item.correct}));
+      const opsiDiacak = shuffle(opsiBerlabel);
+      return {
+        q: item.q,
+        options: opsiDiacak.map(o=> o.opt),
+        correct: opsiDiacak.findIndex(o=> o.benar),
+        explain: item.explain
+      };
+    });
+  }
+
+  function render(){
+    state.dijawab = false;
+    const item = state.data[state.index];
+    el('Progress').textContent = 'Soal ' + (state.index+1) + ' dari ' + state.data.length;
+    el('Text').innerHTML = item.q;
+    el('Options').innerHTML = '';
+    el('Explain').style.display = 'none';
+    el('Explain').textContent = '';
+    el('NextBtn').disabled = true;
+    el('NextBtn').textContent = state.index === state.data.length - 1 ? 'Lihat Hasil →' : 'Soal Berikutnya →';
+    item.options.forEach((opt, idx)=>{
+      const b = document.createElement('button');
+      b.className = 'q-opt';
+      b.innerHTML = opt;
+      b.addEventListener('click', ()=> pilih(idx));
+      el('Options').appendChild(b);
+    });
+  }
+
+  function pilih(idx){
+    if(state.dijawab) return;
+    state.dijawab = true;
+    const item = state.data[state.index];
+    const btns = [...el('Options').children];
+    btns.forEach((b,i)=>{
+      b.disabled = true;
+      if(i === item.correct) b.classList.add('correct');
+      else if(i === idx) b.classList.add('wrong');
+    });
+    if(idx === item.correct) state.skor++;
+    el('ScoreLabel').textContent = 'Skor: ' + state.skor;
+    el('Explain').style.display = 'block';
+    el('Explain').innerHTML = item.explain;
+    el('NextBtn').disabled = false;
+  }
+
+  function selesai(){
+    el('Card').style.display = 'none';
+    el('Result').style.display = 'block';
+    el('ResultScore').textContent = state.skor + '/' + state.data.length;
+    const pct = state.skor / state.data.length;
+    hasilGate[prefix] = { skor: state.skor, total: state.data.length };
+    if(pct >= ambangLolos){
+      el('ResultMsg').style.color = 'var(--mint)';
+      el('ResultMsg').textContent = (pct === 1)
+        ? 'Sempurna! Semua jawaban benar. 🎉'
+        : 'Lolos! Skormu sudah minimal 80%. Yuk lanjut ke langkah berikutnya.';
+      el('RetryBtn').classList.add('hidden');
+      el('UnlockBtn').classList.remove('hidden');
+    } else {
+      el('ResultMsg').style.color = 'var(--coral)';
+      el('ResultMsg').textContent = 'Belum lolos — minimal 4 dari 5 jawaban (80%) harus benar. Baca ulang materi di atas, lalu coba lagi dengan soal yang diacak ulang.';
+      el('RetryBtn').classList.remove('hidden');
+      el('UnlockBtn').classList.add('hidden');
+    }
+  }
+
+  el('NextBtn').addEventListener('click', ()=>{
+    state.index++;
+    if(state.index >= state.data.length) selesai();
+    else render();
+  });
+
+  function mulai(){
+    state.data = acakSoal();
+    state.index = 0; state.skor = 0;
+    el('Card').style.display = 'block';
+    el('Result').style.display = 'none';
+    el('ScoreLabel').textContent = 'Skor: 0';
+    render();
+  }
+
+  el('RetryBtn').addEventListener('click', mulai);
+  el('UnlockBtn').addEventListener('click', onLolos);
+
+  mulai();
+}
+
+/* ---------------- Pool soal Gate 1: CIN satu nilai ---------------- */
+const pool1 = [
+  { q:'Apa fungsi utama pernyataan <code>cin</code> dalam C++?', options:[
+      'Menampilkan teks ke layar',
+      'Membaca nilai yang diketik pengguna dari keyboard',
+      'Menghitung hasil operasi matematika',
+      'Membuat variabel baru'
+    ], correct:1, explain:'cin dipakai untuk membaca (menerima) nilai yang diketik pengguna lewat keyboard, lalu menyimpannya ke variabel.' },
+  { q:'Operator apa yang selalu dipasangkan dengan <code>cin</code> untuk memasukkan nilai ke variabel?', options:[
+      '<code>&gt;&gt;</code>', '<code>&lt;&lt;</code>', '<code>==</code>', '<code>;;</code>'
+    ], correct:0, explain:'cin selalu diikuti operator &gt;&gt; (extraction operator) yang mengarahkan nilai dari keyboard ke variabel.' },
+  { q:'Header apa yang wajib disertakan di awal program supaya <code>cin</code> dan <code>cout</code> bisa dipakai?', options:[
+      '<code>&lt;string&gt;</code>', '<code>&lt;iostream&gt;</code>', '<code>&lt;cmath&gt;</code>', '<code>&lt;vector&gt;</code>'
+    ], correct:1, explain:'<iostream> berisi definisi cin dan cout, jadi wajib di-include di baris paling atas.' },
+  { q:'Manakah penulisan yang benar untuk membaca sebuah variabel int bernama <code>umur</code> memakai cin?', options:[
+      '<code>cin &gt;&gt; umur;</code>', '<code>cin &lt;&lt; umur;</code>', '<code>cin(umur);</code>', '<code>umur &gt;&gt; cin;</code>'
+    ], correct:0, explain:'Penulisan yang benar adalah cin diikuti operator &gt;&gt; lalu nama variabelnya, diakhiri titik koma.' },
+  { q:'Kalau variabel bertipe <code>int</code> tapi pengguna mengetik huruf (bukan angka), apa yang terjadi?', options:[
+      'Program berjalan normal seperti biasa, seolah tidak terjadi apa-apa',
+      'Nilai yang tersimpan tidak sesuai harapan / proses pembacaan bisa gagal',
+      'Program otomatis mengubah tipe variabel menjadi string',
+      'Komputer menjadi hang permanen'
+    ], correct:1, explain:'cin membaca nilai sesuai tipe datanya; kalau tipe dan input tidak cocok (misal huruf untuk int), pembacaan bisa gagal dan nilai variabel tidak sesuai harapan.' },
+  { q:'Pada <code>cout &lt;&lt; "Masukkan umur: "; cin &gt;&gt; umur;</code>, kapan baris <code>cin</code> dijalankan?', options:[
+      'Sebelum teks "Masukkan umur: " ditampilkan',
+      'Setelah teks ditampilkan, program berhenti sejenak menunggu input dari pengguna',
+      'Baris cin tidak pernah dijalankan',
+      'Hanya dijalankan sekali di paling awal program, sebelum baris lain'
+    ], correct:1, explain:'Program dijalankan berurutan dari atas ke bawah: teks ditampilkan dulu lewat cout, baru program berhenti menunggu input di baris cin.' },
+  { q:'Apa yang terjadi kalau baris <code>cin &gt;&gt; umur;</code> dihapus dari program yang tadinya meminta input umur?', options:[
+      'Program tetap berjalan, tapi variabel umur tidak pernah diisi lewat keyboard',
+      'Program otomatis meminta input dua kali',
+      'Terjadi error saat kompilasi karena baris itu wajib ada',
+      'Program akan meminta input lewat suara'
+    ], correct:0, explain:'Kalau baris cin dihapus, program tetap bisa dikompilasi dan dijalankan, hanya saja variabelnya tidak pernah diisi lewat input pengguna.' }
+];
+
+/* ---------------- Pool soal Gate 2: CIN banyak nilai ---------------- */
+const pool2 = [
+  { q:'Manakah sintaks yang benar untuk membaca tiga variabel int (<code>hari</code>, <code>bulan</code>, <code>tahun</code>) sekaligus dalam satu baris?', options:[
+      '<code>cin &gt;&gt; hari, bulan, tahun;</code>',
+      '<code>cin &gt;&gt; hari &gt;&gt; bulan &gt;&gt; tahun;</code>',
+      '<code>cin &gt;&gt; (hari, bulan, tahun);</code>',
+      '<code>cin &gt;&gt; hari; &gt;&gt; bulan; &gt;&gt; tahun;</code>'
+    ], correct:1, explain:'Untuk membaca banyak variabel sekaligus, operator &gt;&gt; dirangkai berkali-kali dalam satu baris cin.' },
+  { q:'Saat program menjalankan <code>cin &gt;&gt; a &gt;&gt; b;</code>, urutan nilai yang diketik pengguna akan...', options:[
+      'Diisikan ke a dan b secara acak',
+      'Diisikan sesuai urutan: nilai pertama ke a, nilai kedua ke b',
+      'Hanya nilai pertama yang tersimpan, nilai kedua diabaikan',
+      'Menyebabkan error karena tidak boleh membaca dua variabel sekaligus'
+    ], correct:1, explain:'Nilai yang diketik dibaca berurutan sesuai urutan variabel yang ditulis setelah cin.' },
+  { q:'Saat mengetik input untuk <code>cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;</code>, nilai-nilai yang diketik sebaiknya dipisahkan dengan...', options:[
+      'Tanda titik koma', 'Spasi atau enter', 'Tanda kurung', 'Tanda petik dua'
+    ], correct:1, explain:'cin membaca nilai yang dipisahkan oleh spasi atau enter (whitespace), bukan tanda baca lain.' },
+  { q:'Kalau variabel <code>nama</code> bertipe <code>string</code> dan pengguna mengetik "Made Wirawan" (dengan spasi), apa yang terjadi saat dibaca dengan <code>cin &gt;&gt; nama;</code>?', options:[
+      'Seluruh "Made Wirawan" tersimpan di variabel nama',
+      'Hanya "Made" yang tersimpan, karena cin &gt;&gt; berhenti membaca di spasi pertama',
+      'Program akan error saat kompilasi',
+      'Hanya "Wirawan" yang tersimpan'
+    ], correct:1, explain:'cin &gt;&gt; hanya membaca sampai ketemu spasi atau enter, jadi untuk teks yang mengandung spasi, cin &gt;&gt; hanya mengambil kata pertamanya saja.' },
+  { q:'Manakah kode yang benar untuk membaca dua variabel double bernama <code>panjang</code> dan <code>lebar</code>?', options:[
+      '<code>cin &gt;&gt; panjang, lebar;</code>',
+      '<code>cin &gt;&gt; panjang &gt;&gt; lebar;</code>',
+      '<code>cin &gt;&gt; panjang; lebar;</code>',
+      '<code>cin &lt;&lt; panjang &lt;&lt; lebar;</code>'
+    ], correct:1, explain:'Sama seperti variabel int, cin &gt;&gt; dirangkai untuk membaca beberapa variabel apa pun tipe datanya.' },
+  { q:'Jika program membaca 3 variabel dengan <code>cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;</code> tapi pengguna baru mengetik 2 angka lalu Enter, apa yang terjadi?', options:[
+      'Program otomatis mengisi variabel ketiga dengan nol',
+      'Program tetap menunggu input tambahan untuk variabel ketiga',
+      'Program langsung berhenti total tanpa pesan',
+      'Dua angka yang sudah diketik ikut diabaikan semua'
+    ], correct:1, explain:'cin akan terus menunggu sampai semua variabel yang diminta terisi, jadi program menunggu input tambahan untuk variabel ketiga.' },
+  { q:'Apa keuntungan menulis <code>cin &gt;&gt; hari &gt;&gt; bulan &gt;&gt; tahun;</code> dibanding menulis tiga baris cin terpisah?', options:[
+      'Tidak ada bedanya sama sekali',
+      'Lebih ringkas, dan pengguna bisa mengetik beberapa nilai sekaligus dalam satu baris',
+      'Program berjalan jauh lebih cepat secara signifikan',
+      'Wajib dipakai karena cin terpisah akan menyebabkan error'
+    ], correct:1, explain:'Menulisnya dalam satu baris membuat kode lebih ringkas, dan pengguna bisa langsung mengetik beberapa nilai sekaligus dipisah spasi.' }
+];
+
+/* ---------------- Pool soal Gate 3: Operator aritmatika ---------------- */
+const pool3 = [
+  { q:'Operator apa yang dipakai untuk mencari sisa hasil bagi (modulus) di C++?', options:[
+      '<code>/</code>', '<code>%</code>', '<code>//</code>', '<code>mod</code>'
+    ], correct:1, explain:'Operator % (modulus) menghasilkan sisa dari sebuah pembagian.' },
+  { q:'Prediksi output: jika <code>int a = 17, b = 5;</code> lalu <code>cout &lt;&lt; a / b;</code>, apa hasilnya?', options:[
+      '3.4', '3', '4', '2'
+    ], correct:1, explain:'Karena a dan b bertipe int, hasil pembagian dibulatkan ke bawah (bagian desimalnya dibuang), jadi 17/5 menghasilkan 3, bukan 3.4.' },
+  { q:'Prediksi output: <code>cout &lt;&lt; 17 % 5;</code> akan menghasilkan...', options:[
+      '3', '2', '3.4', '0'
+    ], correct:1, explain:'17 dibagi 5 = 3 sisa 2, jadi operator % menghasilkan 2.' },
+  { q:'Manakah operator berikut yang termasuk operator aritmatika di C++?', options:[
+      '<code>&amp;&amp;</code>', '<code>==</code>', '<code>*</code>', '<code>&gt;&gt;</code>'
+    ], correct:2, explain:'* (perkalian) adalah salah satu dari lima operator aritmatika dasar: + - * / %.' },
+  { q:'Supaya hasil pembagian dua bilangan (misal 17/5 = 3.4) tetap punya bagian desimal, minimal salah satu variabelnya sebaiknya bertipe...', options:[
+      'int', 'double atau float', 'bool', 'char'
+    ], correct:1, explain:'Kalau minimal salah satu variabelnya bertipe double/float, hasil pembagian akan tetap menyertakan bagian desimalnya.' },
+  { q:'Prediksi output: jika <code>int x = 4, y = 2;</code> lalu <code>cout &lt;&lt; x * y;</code>, hasilnya adalah...', options:[
+      '6', '8', '2', '42'
+    ], correct:1, explain:'4 dikali 2 sama dengan 8.' },
+  { q:'Manakah urutan operator berikut dari kiri ke kanan yang benar untuk: penjumlahan, pengurangan, perkalian, pembagian?', options:[
+      '<code>+ , - , * , /</code>', '<code>- , + , / , *</code>', '<code>* , / , + , -</code>', '<code>% , + , - , *</code>'
+    ], correct:0, explain:'Urutan operatornya adalah + (penjumlahan), - (pengurangan), * (perkalian), / (pembagian).' }
+];
+
+/* ---------------- Pool soal Gate 4: Perbandingan & logika ---------------- */
+const pool4 = [
+  { q:'Operator apa yang dipakai untuk membandingkan "sama dengan" dua nilai (bukan memberi nilai)?', options:[
+      '<code>=</code>', '<code>==</code>', '<code>!=</code>', '<code>&lt;=</code>'
+    ], correct:1, explain:'Tanda = tunggal dipakai untuk memberi nilai (assignment), sedangkan == dipakai untuk membandingkan apakah dua nilai sama.' },
+  { q:'Prediksi output: <code>cout &lt;&lt; (5 &gt; 3);</code> akan menampilkan...', options:[
+      '"true"', '1', '5', '"benar"'
+    ], correct:1, explain:'Hasil operator perbandingan bertipe bool; saat ditampilkan dengan cout, true ditampilkan sebagai angka 1 (dan false sebagai 0).' },
+  { q:'Prediksi output: <code>cout &lt;&lt; (7 != 7);</code> akan menampilkan...', options:[
+      '1', '0', '7', '"true"'
+    ], correct:1, explain:'7 sama dengan 7, jadi 7 != 7 bernilai false, ditampilkan sebagai 0.' },
+  { q:'Operator logika <code>&amp;&amp;</code> (AND) akan menghasilkan true hanya jika...', options:[
+      'Salah satu dari dua kondisinya bernilai true',
+      'Kedua kondisinya bernilai true',
+      'Kedua kondisinya bernilai false',
+      'Tidak ada kondisi yang dicek'
+    ], correct:1, explain:'&& (AND) hanya bernilai true kalau kedua kondisi di kiri dan kanannya sama-sama true.' },
+  { q:'Operator logika <code>||</code> (OR) akan menghasilkan true jika...', options:[
+      'Kedua kondisi harus true',
+      'Minimal salah satu dari dua kondisinya bernilai true',
+      'Kedua kondisi harus false',
+      'Operator ini tidak pernah menghasilkan true'
+    ], correct:1, explain:'|| (OR) bernilai true kalau minimal salah satu dari dua kondisinya true.' },
+  { q:'Apa fungsi operator <code>!</code> (NOT) dalam ekspresi logika?', options:[
+      'Menjumlahkan dua nilai boolean',
+      'Membalik nilai boolean: true jadi false, dan sebaliknya',
+      'Membandingkan dua angka',
+      'Menghapus nilai variabel'
+    ], correct:1, explain:'! (NOT) membalik nilai boolean: true menjadi false, false menjadi true.' },
+  { q:'Prediksi output: jika <code>int nilai = 60;</code> lalu <code>cout &lt;&lt; (nilai &gt;= 75 &amp;&amp; nilai &lt;= 100);</code>, hasilnya adalah...', options:[
+      '1', '0', '60', '"true"'
+    ], correct:1, explain:'nilai (60) tidak memenuhi syarat &gt;= 75, sehingga kondisi pertama sudah false; karena memakai &&, hasil akhirnya otomatis false (0), walau kondisi kedua sebenarnya true.' }
+];
+
+/* ---------------- Inisialisasi 4 gate ---------------- */
+buatGate('g1', pool1, 5, 0.8, ()=>{ unlockStep(2); goStep(2); });
+buatGate('g2', pool2, 5, 0.8, ()=>{ unlockStep(3); goStep(3); });
+buatGate('g3', pool3, 5, 0.8, ()=>{ unlockStep(4); goStep(4); });
+buatGate('g4', pool4, 5, 0.8, ()=>{ unlockStep(5); goStep(5); });
+
+/* ---------------- Kirim hasil ke Google Sheet (lewat Apps Script di config.js) ---------------- */
+const MATERI_LABEL = "CIN dan Operator";
+async function kirimKeSheet(materi, skor, total, identitas){
+  if(typeof CONTROL_URL === 'undefined'){
+    console.warn('CONTROL_URL belum tersedia — lewati pengiriman ke Sheet.');
+    return;
+  }
+  const payload = {
+    waktu: new Date().toLocaleString('id-ID'),
+    mode: identitas.mode,
+    nama: identitas.nama,
+    nis: identitas.nis || '',
+    absen: identitas.absen || '',
+    kelas: identitas.kelas,
+    anggota: identitas.anggota || '',
+    materi: materi,
+    skor: skor,
+    total: total
+  };
+  try{
+    await fetch(CONTROL_URL, { method: 'POST', body: JSON.stringify(payload) });
+  }catch(err){
+    console.error('Gagal mengirim hasil ke spreadsheet:', materi, err);
+  }
+}
+
+function perbaruiRecap(){
+  const label = { g1:'recapG1', g2:'recapG2', g3:'recapG3', g4:'recapG4' };
+  Object.keys(label).forEach(k=>{
+    const el = document.getElementById(label[k]);
+    if(hasilGate[k]) el.textContent = hasilGate[k].skor + '/' + hasilGate[k].total;
+  });
+}
+
+document.getElementById('submitHasil').addEventListener('click', async ()=>{
+  const semuaGateSelesai = ['g1','g2','g3','g4'].every(k => hasilGate[k]);
+  if(!semuaGateSelesai){
+    alert('Selesaikan dulu uji paham di langkah 01–04 sebelum mengirim hasil.');
+    return;
+  }
+  const nama = document.getElementById('qNama').value.trim();
+  const kelas = document.getElementById('qKelas').value.trim();
+  const nis = document.getElementById('qNis').value.trim();
+  const absen = document.getElementById('qAbsen').value.trim();
+  if(!nama || !kelas || !nis || !absen){
+    alert('Isi dulu Nama, Kelas, NIS, dan No. Absen ya.');
+    return;
+  }
+  const identitas = { mode: 'Individu', nama, kelas, nis, absen };
+
+  const submitBtn = document.getElementById('submitHasil');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Mengirim...';
+
+  await Promise.all([
+    kirimKeSheet(MATERI_LABEL + ' — Uji Paham CIN Satu Nilai', hasilGate.g1.skor, hasilGate.g1.total, identitas),
+    kirimKeSheet(MATERI_LABEL + ' — Uji Paham CIN Banyak Nilai', hasilGate.g2.skor, hasilGate.g2.total, identitas),
+    kirimKeSheet(MATERI_LABEL + ' — Uji Paham Operator Aritmatika', hasilGate.g3.skor, hasilGate.g3.total, identitas),
+    kirimKeSheet(MATERI_LABEL + ' — Uji Paham Operator Perbandingan & Logika', hasilGate.g4.skor, hasilGate.g4.total, identitas)
+  ]);
+
+  const resultBox = document.getElementById('submitResult');
+  resultBox.style.display = 'block';
+  resultBox.textContent = 'Hasil berhasil dikirim ke pembina. Terima kasih! 🎉';
+  submitBtn.textContent = 'Terkirim ✓';
+});
+
+perbaruiRecap();
+const recapObserver = setInterval(perbaruiRecap, 800);
+</script>
+</body>
+</html>
