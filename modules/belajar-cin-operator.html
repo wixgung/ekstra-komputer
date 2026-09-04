@@ -130,8 +130,16 @@ code, .code-line, .console-body, .console-head, .terminal .body, .op-sym,
 .sidebar nav a .lockicon{margin-left:auto; font-size:11px;}
 
 main{flex:1; min-width:0; padding:0 0 60px;}
-.step-panel{display:none;}
-.step-panel.active{display:block;}
+.step-panel{display:block;}
+.step-lockmsg{
+  display:none; flex-direction:column; align-items:center; text-align:center;
+  max-width:640px; margin:0 auto; padding:90px 32px; color:var(--text-faint);
+}
+.step-lockmsg .lock-ic{font-size:38px; margin-bottom:14px; opacity:.7;}
+.step-lockmsg h3{color:var(--text-dim); font-size:19px; margin-bottom:8px;}
+.step-lockmsg p{font-size:14px; max-width:420px; margin:0 auto;}
+.step-panel.locked .step-content{display:none;}
+.step-panel.locked .step-lockmsg{display:flex;}
 .section{
   max-width:880px; margin:0 auto; padding:64px 32px 20px; scroll-margin-top:80px;
 }
@@ -580,6 +588,12 @@ td.op-sym{color:var(--amber); font-family:var(--font-mono); font-weight:700; fon
 
     <!-- ============ STEP 2 — CIN BANYAK NILAI ============ -->
     <section class="step-panel" id="step2">
+      <div class="step-lockmsg" id="lockmsg2">
+        <div class="lock-ic">🔒</div>
+        <h3>Langkah 02 — CIN: Banyak Nilai</h3>
+        <p>Selesaikan dulu uji paham di langkah sebelumnya (minimal 80% benar) untuk membuka materi ini.</p>
+      </div>
+      <div class="step-content" id="stepcontent2">
       <div class="section">
         <div class="eyebrow">02 · CIN Lanjutan</div>
         <h2>Membaca Banyak Nilai Sekaligus</h2>
@@ -644,10 +658,17 @@ td.op-sym{color:var(--amber); font-family:var(--font-mono); font-weight:700; fon
           </div>
         </div>
       </div>
+      </div><!-- /step-content -->
     </section>
 
     <!-- ============ STEP 3 — OPERATOR ARITMATIKA ============ -->
     <section class="step-panel" id="step3">
+      <div class="step-lockmsg" id="lockmsg3">
+        <div class="lock-ic">🔒</div>
+        <h3>Langkah 03 — Operator Aritmatika</h3>
+        <p>Selesaikan dulu uji paham di langkah sebelumnya (minimal 80% benar) untuk membuka materi ini.</p>
+      </div>
+      <div class="step-content" id="stepcontent3">
       <div class="section">
         <div class="eyebrow">03 · Operator</div>
         <h2>Operator Aritmatika</h2>
@@ -719,10 +740,17 @@ td.op-sym{color:var(--amber); font-family:var(--font-mono); font-weight:700; fon
           </div>
         </div>
       </div>
+      </div><!-- /step-content -->
     </section>
 
     <!-- ============ STEP 4 — OPERATOR PERBANDINGAN & LOGIKA ============ -->
     <section class="step-panel" id="step4">
+      <div class="step-lockmsg" id="lockmsg4">
+        <div class="lock-ic">🔒</div>
+        <h3>Langkah 04 — Operator Perbandingan & Logika</h3>
+        <p>Selesaikan dulu uji paham di langkah sebelumnya (minimal 80% benar) untuk membuka materi ini.</p>
+      </div>
+      <div class="step-content" id="stepcontent4">
       <div class="section">
         <div class="eyebrow">04 · Operator</div>
         <h2>Operator Perbandingan &amp; Logika</h2>
@@ -807,10 +835,17 @@ td.op-sym{color:var(--amber); font-family:var(--font-mono); font-weight:700; fon
           </div>
         </div>
       </div>
+      </div><!-- /step-content -->
     </section>
 
     <!-- ============ STEP 5 — CONTOH GABUNGAN ============ -->
     <section class="step-panel" id="step5">
+      <div class="step-lockmsg" id="lockmsg5">
+        <div class="lock-ic">🔒</div>
+        <h3>Langkah 05 — Contoh Program Gabungan</h3>
+        <p>Selesaikan dulu uji paham di langkah sebelumnya (minimal 80% benar) untuk membuka materi ini.</p>
+      </div>
+      <div class="step-content" id="stepcontent5">
       <div class="section">
         <div class="eyebrow">05 · Praktik Gabungan</div>
         <h2>Contoh Program Gabungan</h2>
@@ -881,10 +916,17 @@ td.op-sym{color:var(--amber); font-family:var(--font-mono); font-weight:700; fon
           <button class="btn primary" id="btnLanjutLatihan">Lanjut ke Latihan →</button>
         </div>
       </div>
+      </div><!-- /step-content -->
     </section>
 
     <!-- ============ STEP 6 — LATIHAN & KIRIM HASIL ============ -->
     <section class="step-panel" id="step6">
+      <div class="step-lockmsg" id="lockmsg6">
+        <div class="lock-ic">🔒</div>
+        <h3>Langkah 06 — Latihan & Kirim Hasil</h3>
+        <p>Selesaikan dulu uji paham di langkah sebelumnya (minimal 80% benar) untuk membuka materi ini.</p>
+      </div>
+      <div class="step-content" id="stepcontent6">
       <div class="section">
         <div class="eyebrow">06 · Praktik Mandiri</div>
         <h2>Latihan: Nilai Akhir dan Status Kelulusan</h2>
@@ -967,6 +1009,7 @@ td.op-sym{color:var(--amber); font-family:var(--font-mono); font-weight:700; fon
       </div>
 
       <footer style="text-align:center; padding:24px 20px; font-family:var(--font-mono); font-size:12.5px; color:var(--text-faint); max-width:520px; margin:0 auto;">"Program yang bisa membaca input dari penggunanya adalah program yang benar-benar hidup." <span style="color:var(--amber);">💛</span> Semangat belajar, Ekstra Komputer!</footer>
+      </div><!-- /step-content -->
     </section>
 
   </main>
@@ -1185,12 +1228,11 @@ document.querySelectorAll('.console-replay').forEach(btn=>{
 const demoPerStep = { 1:'demo1', 2:'demo2', 3:'demo3', 4:'demo4', 5:'demo5' };
 const demoSudahDiputar = {};
 
-/* ---------------- STEPPER: navigasi & gerbang antar langkah ---------------- */
+/* ---------------- STEPPER: continuous scroll, gerbang antar langkah ---------------- */
 const totalSteps = 6; // langkah 1..6 (langkah 0 = beranda, selalu terbuka)
-let currentStep = 0;
 let maxUnlocked = 1; // langkah 0 & 1 terbuka sejak awal
 
-/* ---- Mode Guru: buka semua langkah tanpa perlu lolos kuis ----
+/* ---- Mode Guru: buka semua langkah + bisa scroll bebas tanpa lolos kuis ----
    Cara pakai: tambahkan ?guru=1 di akhir link file ini, atau tekan
    Ctrl+Alt+G saat membuka materi. Siswa yang membuka link biasa
    tidak akan tahu/terpengaruh oleh ini. */
@@ -1200,8 +1242,8 @@ function aktifkanModeGuru(){
   maxUnlocked = totalSteps;
   const badge = document.getElementById('guruBadge');
   if(badge) badge.classList.remove('hidden');
-  refreshNav();
-  showToast('🔓 Mode Guru aktif — semua langkah terbuka');
+  refreshLocks();
+  showToast('🔓 Mode Guru aktif — semua materi terbuka, tinggal scroll ke bawah');
 }
 (function cekModeGuru(){
   try{
@@ -1226,54 +1268,82 @@ const stepNames = {
 const navLinks = [...document.querySelectorAll('#stepnav a')];
 const sidebar = document.getElementById('sidebar');
 
-function refreshNav(){
+// Setiap langkah 2..6 punya panel dengan dua bagian: .step-lockmsg (terlihat
+// kalau masih terkunci) dan .step-content (materi asli, terlihat kalau sudah
+// terbuka). CSS yang mengatur mana yang tampil lewat class "locked" di panel.
+function refreshLocks(){
+  for(let n = 2; n <= totalSteps; n++){
+    const panel = document.getElementById('step' + n);
+    if(panel) panel.classList.toggle('locked', n > maxUnlocked);
+  }
   navLinks.forEach(a=>{
     const n = parseInt(a.dataset.step, 10);
-    a.classList.toggle('active', n === currentStep);
     a.classList.toggle('locked', n > maxUnlocked);
     a.classList.toggle('done', n < maxUnlocked && n !== 0);
     const lock = a.querySelector('.lockicon');
     if(lock) lock.style.display = (n > maxUnlocked) ? 'inline' : 'none';
   });
-  document.getElementById('sbStep').textContent = 'Langkah ' + currentStep + ' dari ' + totalSteps;
   const pct = Math.round((maxUnlocked / (totalSteps + 1)) * 100);
   document.getElementById('sbProgress').innerHTML = 'Progres: <b>' + pct + '%</b>';
-  document.getElementById('topbarStepName').textContent = 'Pertemuan 3 — ' + stepNames[currentStep];
   const badge = document.getElementById('guruBadge');
   if(badge) badge.classList.toggle('hidden', !modeGuru);
 }
 
-function goStep(n){
+// Klik di sidebar / tombol "Mulai" / tombol "Lanjut" -> scroll halus ke
+// panel tujuan. Kalau panel itu masih terkunci, tetap discroll supaya siswa
+// melihat pesan gemboknya (bukan materinya), sambil dikasih toast.
+function scrollToStep(n){
+  const panel = document.getElementById('step' + n);
+  if(!panel) return;
   if(n > maxUnlocked){
-    showToast('Selesaikan uji paham langkah ini dulu ya 🔐');
-    return;
+    showToast('Selesaikan uji paham langkah sebelumnya dulu ya 🔐');
   }
-  document.querySelectorAll('.step-panel').forEach(s=> s.classList.remove('active'));
-  document.getElementById('step' + n).classList.add('active');
-  currentStep = n;
-  refreshNav();
-  window.scrollTo({top:0, behavior:'smooth'});
+  panel.scrollIntoView({behavior:'smooth', block:'start'});
   sidebar.classList.remove('open');
-  if(demoPerStep[n]){
-    putarDemo(demoPerStep[n]);
-  }
 }
 
+// Dipanggil begitu sebuah gerbang kuis lolos: buka kunci langkah berikutnya,
+// putar animasi console-nya (kalau ada), lalu scroll otomatis ke sana supaya
+// siswa langsung melihat materi barunya muncul.
 function unlockStep(n){
-  if(n > maxUnlocked) maxUnlocked = n;
-  refreshNav();
+  if(n > maxUnlocked){
+    maxUnlocked = n;
+    refreshLocks();
+  }
+  if(demoPerStep[n] && !modeGuru){
+    putarDemo(demoPerStep[n]);
+  }
+  const panel = document.getElementById('step' + n);
+  if(panel) setTimeout(()=> panel.scrollIntoView({behavior:'smooth', block:'start'}), 250);
 }
 
 navLinks.forEach(a=>{
-  a.addEventListener('click', ()=> goStep(parseInt(a.dataset.step, 10)));
+  a.addEventListener('click', ()=> scrollToStep(parseInt(a.dataset.step, 10)));
 });
-document.getElementById('btnMulai').addEventListener('click', ()=> goStep(1));
-document.getElementById('btnLanjutLatihan').addEventListener('click', ()=>{
-  unlockStep(6);
-  goStep(6);
-});
+document.getElementById('btnMulai').addEventListener('click', ()=> scrollToStep(1));
+document.getElementById('btnLanjutLatihan').addEventListener('click', ()=> unlockStep(6));
 document.getElementById('menuToggle').addEventListener('click', ()=> sidebar.classList.toggle('open'));
-refreshNav();
+refreshLocks();
+if(demoPerStep[1] && !modeGuru){
+  // materi langkah 01 selalu terbuka sejak awal, putar animasinya sekali
+  // supaya siswa yang langsung scroll (tanpa klik "Mulai Belajar") tetap lihat.
+  putarDemo('demo1');
+}
+
+// Sorot item sidebar yang aktif & perbarui breadcrumb sesuai posisi scroll
+// (mengikuti pola halaman materi sebelumnya yang bisa di-scroll bebas).
+const stepSections = [...document.querySelectorAll('.step-panel')];
+const scrollObs = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const n = parseInt(entry.target.id.replace('step',''), 10);
+      navLinks.forEach(l=> l.classList.toggle('active', parseInt(l.dataset.step,10) === n));
+      document.getElementById('topbarStepName').textContent = 'Pertemuan 3 — ' + stepNames[n];
+      document.getElementById('sbStep').textContent = 'Langkah ' + n + ' dari ' + totalSteps;
+    }
+  });
+}, {rootMargin:'-35% 0px -55% 0px'});
+stepSections.forEach(s=> scrollObs.observe(s));
 
 /* ---------------- Engine kuis gerbang (reusable untuk 4 gate) ---------------- */
 const hasilGate = {};
@@ -1514,10 +1584,10 @@ const pool4 = [
 ];
 
 /* ---------------- Inisialisasi 4 gate ---------------- */
-buatGate('g1', pool1, 5, 0.8, ()=>{ unlockStep(2); goStep(2); });
-buatGate('g2', pool2, 5, 0.8, ()=>{ unlockStep(3); goStep(3); });
-buatGate('g3', pool3, 5, 0.8, ()=>{ unlockStep(4); goStep(4); });
-buatGate('g4', pool4, 5, 0.8, ()=>{ unlockStep(5); goStep(5); });
+buatGate('g1', pool1, 5, 0.8, ()=>{ unlockStep(2); });
+buatGate('g2', pool2, 5, 0.8, ()=>{ unlockStep(3); });
+buatGate('g3', pool3, 5, 0.8, ()=>{ unlockStep(4); });
+buatGate('g4', pool4, 5, 0.8, ()=>{ unlockStep(5); });
 
 /* ---------------- Kirim hasil ke Google Sheet (lewat Apps Script di config.js) ---------------- */
 const MATERI_LABEL = "CIN dan Operator";
