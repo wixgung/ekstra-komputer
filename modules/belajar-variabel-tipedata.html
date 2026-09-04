@@ -55,6 +55,18 @@ code{font-family:var(--font-mono); font-size:.9em; background:var(--surface-2); 
 ::-webkit-scrollbar-track{background:var(--bg-soft);}
 ::-webkit-scrollbar-thumb{background:var(--surface-3); border-radius:6px;}
 
+/* ---------- Matikan font ligature (JetBrains Mono suka menggabungkan
+   ==, !=, >=, <= jadi satu simbol gabungan — kita mau tampil apa adanya
+   sebagai karakter terpisah, sesuai yang benar-benar diketik di keyboard) ---------- */
+code, .code-line, .console-body, .console-head, .terminal .body, .op-sym,
+.no-copy-badge, .tag, .gate-title, .q-progress, .btn, .statusbar, .toast,
+.filename, .sidebar nav a, .recap-chip, .field label, .eyebrow, .sources h3,
+.menu-toggle, .sidebar .group-label, .term-note{
+  font-variant-ligatures: none;
+  -webkit-font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0, "dlig" 0, "clig" 0;
+}
+
 /* ---------- TOPBAR ---------- */
 .topbar{
   position:sticky; top:0; z-index:50;
@@ -73,6 +85,10 @@ code{font-family:var(--font-mono); font-size:.9em; background:var(--surface-2); 
   font-family:var(--font-mono); font-size:13px; color:var(--text-dim);
 }
 .topbar .filename b{color:var(--text); font-weight:500;}
+.guru-badge{
+  font-family:var(--font-mono); font-size:10.5px; color:#1a1305; background:var(--amber);
+  padding:2px 8px; border-radius:20px; margin-left:6px; font-weight:700;
+}
 .menu-toggle{
   margin-left:auto; display:none;
   background:var(--surface-2); border:1px solid var(--border);
@@ -101,7 +117,7 @@ code{font-family:var(--font-mono); font-size:.9em; background:var(--surface-2); 
   display:flex; align-items:center; gap:9px;
   padding:8px 20px; font-family:var(--font-mono); font-size:13px;
   color:var(--text-dim); text-decoration:none; border-left:2px solid transparent;
-  transition:.15s;
+  transition:.15s; cursor:pointer;
 }
 .sidebar nav a:hover{background:var(--surface); color:var(--text);}
 .sidebar nav a.active{
@@ -109,8 +125,21 @@ code{font-family:var(--font-mono); font-size:.9em; background:var(--surface-2); 
 }
 .sidebar nav a .num{color:var(--text-faint); font-size:11px; width:16px; flex-shrink:0;}
 .sidebar nav a.active .num{color:var(--amber);}
+.sidebar nav a.locked{opacity:.38; cursor:not-allowed;}
+.sidebar nav a.done .num{color:var(--mint);}
+.sidebar nav a .lockicon{margin-left:auto; font-size:11px;}
 
 main{flex:1; min-width:0; padding:0 0 60px;}
+.step-panel{display:block;}
+.step-lockmsg{
+  display:none; flex-direction:column; align-items:center; text-align:center;
+  max-width:640px; margin:0 auto; padding:90px 32px; color:var(--text-faint);
+}
+.step-lockmsg .lock-ic{font-size:38px; margin-bottom:14px; opacity:.7;}
+.step-lockmsg h3{color:var(--text-dim); font-size:19px; margin-bottom:8px;}
+.step-lockmsg p{font-size:14px; max-width:420px; margin:0 auto;}
+.step-panel.locked .step-content{display:none;}
+.step-panel.locked .step-lockmsg{display:flex;}
 .section{
   max-width:880px; margin:0 auto; padding:64px 32px 20px; scroll-margin-top:80px;
 }
@@ -158,6 +187,7 @@ main{flex:1; min-width:0; padding:0 0 60px;}
   font-family:var(--font-mono); font-size:12px; color:var(--text-dim);
   border:1px solid var(--border); padding:5px 10px; border-radius:20px;
 }
+.hero-start{margin-top:28px;}
 
 /* ---------- CARDS / GRID ---------- */
 .card{
@@ -173,18 +203,6 @@ main{flex:1; min-width:0; padding:0 0 60px;}
 .mini-card h4{font-size:15px; margin-bottom:6px;}
 .mini-card p{font-size:14px; margin:0;}
 
-/* ---------- TIMELINE ---------- */
-.timeline{position:relative; margin:26px 0; padding-left:26px; border-left:1px solid var(--border);}
-.tl-item{position:relative; padding-bottom:26px;}
-.tl-item:last-child{padding-bottom:0;}
-.tl-item::before{
-  content:''; position:absolute; left:-31px; top:4px; width:10px; height:10px;
-  border-radius:50%; background:var(--bg); border:2px solid var(--amber);
-}
-.tl-year{font-family:var(--font-mono); color:var(--amber); font-size:13px; font-weight:600;}
-.tl-item h4{font-size:16px; margin:4px 0 4px;}
-.tl-item p{font-size:14.5px; margin:0;}
-
 /* ---------- TABLE ---------- */
 .table-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:10px; margin:18px 0;}
 table{width:100%; border-collapse:collapse; font-size:14px; min-width:560px;}
@@ -195,9 +213,7 @@ thead th{
 }
 tbody tr:last-child td{border-bottom:none;}
 tbody tr:hover{background:var(--surface);}
-td.lang-c{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
 td.lang-cpp{color:var(--amber); font-family:var(--font-mono); font-weight:600;}
-td.lang-cs{color:var(--violet); font-family:var(--font-mono); font-weight:600;}
 td.tp-ok{color:var(--mint); font-family:var(--font-mono); font-weight:600;}
 td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
 
@@ -219,6 +235,7 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
 .code-line{
   position:relative;
   padding:1px 18px 1px 62px; font-family:var(--font-mono); font-size:14px; white-space:pre;
+  line-height:1.65; min-height:1.65em;
 }
 .code-line::before{
   content: attr(data-ln);
@@ -243,7 +260,9 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
   display:flex; align-items:center; gap:8px;
 }
 .console-head::before{content:'▶'; color:var(--mint); font-size:10px;}
-.console-body{padding:18px 20px; font-family:var(--font-mono); font-size:14px; color:#D9DCE3; overflow-x:auto;}
+.console-head span{flex:1; min-width:0;}
+.console-replay{padding:5px 10px; font-size:11px; flex-shrink:0; margin-left:auto;}
+.console-body{padding:18px 20px; font-family:var(--font-mono); font-size:14px; color:#D9DCE3; overflow-x:auto; min-height:28px;}
 .console-body .cline{margin-bottom:4px; white-space:pre;}
 .console-body .cmeta{color:var(--text-faint); margin-top:10px; font-size:12.5px;}
 
@@ -271,12 +290,41 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
   color:var(--mint); border-radius:8px; padding:10px 14px; font-size:13.5px; margin:10px 0 22px;
 }
 
-/* ---------- QUIZ ---------- */
+/* ---------- CALLOUT (aturan penamaan) ---------- */
+.callout-list{margin:20px 0; display:grid; gap:12px;}
+.callout{
+  display:grid; grid-template-columns:34px minmax(0,1fr); gap:14px; align-items:start;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; max-width:100%;
+}
+.callout > div:last-child{min-width:0; overflow-wrap:break-word; word-break:break-word;}
+.callout.highlight{border-color:var(--amber); background:var(--amber-soft);}
+.callout .cnum{
+  width:30px; height:30px; border-radius:50%; background:var(--violet-soft); color:var(--violet);
+  font-family:var(--font-mono); font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;
+}
+.callout.highlight .cnum{background:var(--amber); color:#1a1305;}
+.callout h4{font-size:14.5px; margin-bottom:4px;}
+.callout h4 .key{
+  font-family:var(--font-mono); font-size:11px; background:var(--surface-3); color:var(--text-dim);
+  padding:2px 7px; border-radius:5px; margin-left:6px;
+}
+.callout.highlight h4 .key{background:var(--amber); color:#1a1305; font-weight:700;}
+.callout p{font-size:13.5px; margin:0;}
+
+/* ---------- QUIZ / GATE ---------- */
+.gate-wrap{margin-top:38px; padding-top:28px; border-top:1px solid var(--border-soft);}
+.gate-title{
+  font-family:var(--font-mono); font-size:12px; color:var(--violet);
+  text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px;
+  display:flex; align-items:center; gap:8px;
+}
+.gate-title::before{content:'🔐';}
+.gate-note{font-size:14px; color:var(--text-dim); margin-bottom:16px;}
 .quiz-card{
-  background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; margin:18px 0;
+  background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; margin:10px 0;
 }
 .q-progress{font-family:var(--font-mono); font-size:12px; color:var(--text-faint); margin-bottom:10px;}
-.q-text{font-size:16.5px; font-weight:600; margin-bottom:18px; font-family:var(--font-display);}
+.q-text{font-size:16px; font-weight:600; margin-bottom:18px; font-family:var(--font-display); color:var(--text);}
 .q-text code{font-size:.85em;}
 .q-options{display:grid; gap:10px;}
 .q-opt{
@@ -301,9 +349,14 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
 .btn:hover{border-color:var(--amber); color:var(--amber);}
 .btn.primary{background:var(--amber); border-color:var(--amber); color:#1a1305; font-weight:600;}
 .btn.primary:hover{opacity:.9; color:#1a1305;}
+.btn.mint{background:var(--mint); border-color:var(--mint); color:#0c2419; font-weight:600;}
+.btn.mint:hover{opacity:.9; color:#0c2419;}
 .btn:disabled{opacity:.4; cursor:not-allowed;}
-.quiz-result{display:none; text-align:center; padding:30px 20px;}
-.quiz-result .score{font-family:var(--font-display); font-size:44px; color:var(--amber);}
+.quiz-result{display:none; text-align:center; padding:26px 20px;}
+.quiz-result .score{font-family:var(--font-display); font-size:40px; color:var(--amber);}
+.quiz-result .rmsg{margin-top:8px; font-size:14.5px;}
+.quiz-result .ractions{margin-top:18px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+.hidden{display:none !important;}
 
 /* deklarasi ngaco game */
 .game-wrap{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; margin:18px 0; max-width:100%; box-sizing:border-box;}
@@ -353,47 +406,42 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
 .checklist li{display:flex; align-items:flex-start; gap:10px; padding:6px 0; font-size:14.5px; line-height:1.55; color:var(--text-dim); max-width:100%;}
 .checklist li .bullet{color:var(--amber); flex-shrink:0; line-height:inherit;}
 .checklist li > span:last-child{flex:1 1 auto; min-width:0; overflow-wrap:break-word; word-break:break-word;}
-.steps{list-style:none; counter-reset:step; padding:0; margin:14px 0 0; display:grid; gap:10px; max-width:100%;}
-.steps li{
-  counter-increment:step; display:flex; align-items:flex-start; gap:12px;
-  font-size:14.5px; line-height:1.55; color:var(--text-dim); max-width:100%;
-}
-.steps li::before{
-  content:counter(step); flex-shrink:0; width:24px; height:24px; border-radius:50%;
-  background:var(--amber-soft); color:var(--amber); font-family:var(--font-mono); font-size:12px; font-weight:700;
-  display:flex; align-items:center; justify-content:center; margin-top:1px;
-}
-.steps li span{flex:1 1 auto; min-width:0; overflow-wrap:break-word; word-break:break-word;}
-.steps li code{word-break:break-word; overflow-wrap:break-word;}
 .submit-box{
   background:var(--amber-soft); border:1px solid var(--amber); border-radius:10px; padding:18px 20px; margin:18px 0;
 }
 .submit-box h4{color:var(--amber); font-size:14px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.05em;}
-.submit-box ol{margin:10px 0 0; padding-left:20px; font-size:14.5px; color:var(--text-dim);}
-.submit-box ol li{margin-bottom:6px;}
+.submit-box p{font-size:14.5px; color:var(--text-dim); margin:8px 0 0;}
 
-/* ---------- CALLOUT (aturan penamaan) ---------- */
-.callout-list{margin:20px 0; display:grid; gap:12px;}
-.callout{
-  display:grid; grid-template-columns:34px minmax(0,1fr); gap:14px; align-items:start;
-  background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; max-width:100%;
+/* ---------- Form identitas / kirim hasil ---------- */
+.idform{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0 20px;}
+@media (max-width:600px){.idform{grid-template-columns:1fr;}}
+.field label{
+  display:block; font-family:var(--font-mono); font-size:11px; text-transform:uppercase;
+  letter-spacing:.06em; margin-bottom:6px; color:var(--text-faint);
 }
-.callout > div:last-child{min-width:0; overflow-wrap:break-word; word-break:break-word;}
-.callout.highlight{border-color:var(--amber); background:var(--amber-soft);}
-.callout .cnum{
-  width:30px; height:30px; border-radius:50%; background:var(--violet-soft); color:var(--violet);
-  font-family:var(--font-mono); font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;
+.field input{
+  width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px;
+  background:var(--surface-2); color:var(--text); font-family:var(--font-body); font-size:14px;
 }
-.callout.highlight .cnum{background:var(--amber); color:#1a1305;}
-.callout h4{font-size:14.5px; margin-bottom:4px;}
-.callout h4 .key{
-  font-family:var(--font-mono); font-size:11px; background:var(--surface-3); color:var(--text-dim);
-  padding:2px 7px; border-radius:5px; margin-left:6px;
+.field input:focus{outline:none; border-color:var(--amber);}
+#submitResult{
+  margin-top:16px; padding:14px 16px; border-radius:8px; background:var(--mint-soft);
+  border:1px solid var(--mint); color:var(--mint); font-size:13.5px; display:none;
 }
-.callout.highlight h4 .key{background:var(--amber); color:#1a1305; font-weight:700;}
-.callout p{font-size:13.5px; margin:0;}
+.progress-recap{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:16px 0;
+}
+@media (max-width:600px){.progress-recap{grid-template-columns:1fr 1fr;}}
+.recap-chip{
+  background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:10px 12px;
+  font-family:var(--font-mono); font-size:12px; color:var(--text-dim); text-align:center;
+}
+.recap-chip b{display:block; font-size:16px; color:var(--mint); margin-top:2px;}
 
-/* ---------- SUMBER / REFERENSI ---------- */
+/* ---------- STEP ACTIONS ---------- */
+.step-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:30px;}
+
+/* ---------- SUMBER ---------- */
 .sources{
   max-width:880px; margin:0 auto; padding:40px 32px 80px;
   border-top:1px solid var(--border-soft);
@@ -403,14 +451,13 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
 .sources li{font-size:13.5px; color:var(--text-dim);}
 .sources li a{color:var(--violet); text-decoration:none;}
 .sources li a:hover{text-decoration:underline;}
-.sources .note{margin-top:14px; font-size:12.5px; color:var(--text-faint);}
 
 /* ---------- toast ---------- */
 .toast{
   position:fixed; bottom:calc(var(--statusbar-h) + 16px); left:50%; transform:translateX(-50%) translateY(20px);
   background:var(--surface-3); border:1px solid var(--amber); color:var(--amber);
   font-family:var(--font-mono); font-size:13px; padding:10px 18px; border-radius:8px;
-  opacity:0; transition:.25s; pointer-events:none; z-index:200;
+  opacity:0; transition:.25s; pointer-events:none; z-index:200; max-width:86vw; text-align:center;
 }
 .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 
@@ -441,6 +488,7 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
   .statusbar{font-size:10px; gap:12px;}
   .game-line{font-size:12.5px; padding:9px 11px; gap:8px;}
   .console-body{font-size:12.5px; padding:14px 16px;}
+  .progress-recap{grid-template-columns:1fr 1fr;}
 }
 
 /* ---------- Guard loading (cek status Tampilkan dari Sheet) ---------- */
@@ -455,24 +503,6 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
   animation:guardspin .8s linear infinite;
 }
 @keyframes guardspin{to{transform:rotate(360deg);}}
-
-/* ---------- Form identitas / kirim hasil ---------- */
-.idform{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0 20px;}
-@media (max-width:600px){.idform{grid-template-columns:1fr;}}
-.field label{
-  display:block; font-family:var(--font-mono); font-size:11px; text-transform:uppercase;
-  letter-spacing:.06em; margin-bottom:6px; color:var(--text-faint);
-}
-.field input{
-  width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px;
-  background:var(--surface-2); color:var(--text); font-family:var(--font-body); font-size:14px;
-}
-.field input:focus{outline:none; border-color:var(--amber);}
-.hidden{display:none !important;}
-#submitResult{
-  margin-top:16px; padding:14px 16px; border-radius:8px; background:var(--mint-soft);
-  border:1px solid var(--mint); color:var(--mint); font-size:13.5px; display:none;
-}
 </style>
 </head>
 <body>
@@ -486,217 +516,267 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
 
 <div class="topbar">
   <div class="dots"><span></span><span></span><span></span></div>
-  <div class="filename"><a href="../index.html" style="color:inherit; text-decoration:none; opacity:.7;">⌨️ Ekstra Komputer</a> &nbsp;›&nbsp; <b>Pertemuan 2 — Variabel dan Tipe Data</b></div>
-  <button class="menu-toggle" id="menuToggle">☰ Daftar Isi</button>
+  <div class="filename"><a href="../index.html" style="color:inherit; text-decoration:none; opacity:.7;">⌨️ Ekstra Komputer</a> &nbsp;›&nbsp; <b id="topbarStepName">Pertemuan 2 — Variabel dan Tipe Data</b> <span class="guru-badge hidden" id="guruBadge">🔓 Mode Guru</span></div>
+  <button class="menu-toggle" id="menuToggle">☰ Langkah</button>
 </div>
 
 <div class="shell">
   <aside class="sidebar" id="sidebar">
-    <div class="group-label">Daftar Isi</div>
-    <nav id="sidenav">
-      <a href="#beranda" data-target="beranda"><span class="num">00</span>Beranda</a>
-      <a href="#variabel" data-target="variabel"><span class="num">01</span>Apa itu Variabel</a>
-      <a href="#tipedata" data-target="tipedata"><span class="num">02</span>Tipe Data Dasar</a>
-      <a href="#penamaan" data-target="penamaan"><span class="num">03</span>Aturan Penamaan</a>
-      <a href="#deklarasi" data-target="deklarasi"><span class="num">04</span>Deklarasi &amp; Inisialisasi</a>
-      <a href="#contoh" data-target="contoh"><span class="num">05</span>Contoh Program</a>
-      <a href="#materi" data-target="materi"><span class="num">06</span>Hal Penting Lainnya</a>
-      <a href="#kuis" data-target="kuis"><span class="num">07</span>Uji Pemahaman</a>
-      <a href="#latihan" data-target="latihan"><span class="num">08</span>Latihan</a>
+    <div class="group-label">Langkah Belajar</div>
+    <nav id="stepnav">
+      <a data-step="0"><span class="num">00</span>Beranda</a>
+      <a data-step="1"><span class="num">01</span>Variabel &amp; Tipe Data <span class="lockicon">🔒</span></a>
+      <a data-step="2"><span class="num">02</span>Aturan Penamaan <span class="lockicon">🔒</span></a>
+      <a data-step="3"><span class="num">03</span>Deklarasi &amp; Inisialisasi <span class="lockicon">🔒</span></a>
+      <a data-step="4"><span class="num">04</span>Hal Penting Lainnya <span class="lockicon">🔒</span></a>
+      <a data-step="5"><span class="num">05</span>Contoh Program Lengkap <span class="lockicon">🔒</span></a>
+      <a data-step="6"><span class="num">06</span>Latihan &amp; Kirim Hasil <span class="lockicon">🔒</span></a>
     </nav>
   </aside>
 
   <main>
 
-    <!-- ============ HERO / BERANDA ============ -->
-    <section class="hero" id="beranda">
-      <div class="terminal">
-        <div class="bar"><span></span><span></span><span></span><div class="tt">Dev-C++ — Console</div></div>
-        <div class="body" id="bootTerminal"></div>
-      </div>
-      <h1>Pertemuan 2: <span class="hl">Variabel</span> dan Tipe Data</h1>
-      <p class="sub">Di pertemuan kedua ini kita belajar cara menyimpan data di dalam program — mulai dari apa itu variabel, tipe-tipe data dasar di C++ (termasuk bilangan bulat dan bilangan desimal), sampai aturan memberi nama variabel. Baca pelan-pelan, dan tetap ketik sendiri setiap contoh kodenya ya.</p>
-      <div class="hero-tags">
-        <span class="tag">Variabel</span>
-        <span class="tag">Tipe Data</span>
-        <span class="tag">Short &amp; Long</span>
-        <span class="tag">Latihan Mandiri</span>
+    <!-- ============ STEP 0 — BERANDA ============ -->
+    <section class="step-panel" id="step0">
+      <div class="hero">
+        <div class="terminal">
+          <div class="bar"><span></span><span></span><span></span><div class="tt">Dev-C++ — Console</div></div>
+          <div class="body" id="bootTerminal"></div>
+        </div>
+        <h1>Pertemuan 2: <span class="hl">Variabel</span> dan Tipe Data</h1>
+        <p class="sub">Di pertemuan kedua ini kita belajar cara menyimpan data di dalam program — mulai dari apa itu variabel, tipe-tipe data dasar di C++, aturan memberi nama variabel, sampai deklarasi dan inisialisasi. Materi dibagi jadi langkah-langkah kecil — setiap selesai satu langkah, ada uji paham singkat dulu sebelum bisa lanjut ke langkah berikutnya.</p>
+        <div class="hero-tags">
+          <span class="tag">Variabel</span>
+          <span class="tag">Tipe Data</span>
+          <span class="tag">Aturan Penamaan</span>
+          <span class="tag">Deklarasi &amp; Inisialisasi</span>
+        </div>
+        <div class="hero-start">
+          <button class="btn primary" id="btnMulai">Mulai Belajar →</button>
+        </div>
       </div>
     </section>
 
-    <!-- ============ 01 APA ITU VARIABEL ============ -->
-    <section class="section" id="variabel">
-      <div class="eyebrow">01 · Pengenalan</div>
-      <h2>Apa itu Variabel?</h2>
-      <p class="lead"><span class="term">Variabel</span> adalah nama yang kita berikan untuk sebuah tempat penyimpanan di memori komputer, supaya kita bisa menyimpan sebuah nilai dan memakainya lagi kapan saja selama program berjalan.</p>
-      <p>Bayangkan variabel seperti sebuah kotak berlabel. Kita bisa menaruh sesuatu di dalamnya, membaca isinya, atau mengganti isinya dengan nilai baru — dan label di kotak itu (nama variabel) tidak berubah meskipun isinya berganti.</p>
+    <!-- ============ STEP 1 — VARIABEL & TIPE DATA ============ -->
+    <section class="step-panel" id="step1">
+      <div class="section">
+        <div class="eyebrow">01 · Pengenalan</div>
+        <h2>Apa itu Variabel?</h2>
+        <p class="lead"><span class="term">Variabel</span> adalah nama yang kita berikan untuk sebuah tempat penyimpanan di memori komputer, supaya kita bisa menyimpan sebuah nilai dan memakainya lagi kapan saja selama program berjalan.</p>
+        <p>Bayangkan variabel seperti sebuah kotak berlabel. Kita bisa menaruh sesuatu di dalamnya, membaca isinya, atau mengganti isinya dengan nilai baru — dan label di kotak itu (nama variabel) tidak berubah meskipun isinya berganti.</p>
 
-      <div class="grid3">
-        <div class="mini-card">
-          <div class="ic">01</div>
-          <h4>Nama Variabel</h4>
-          <p>Sebutan unik yang kita pakai untuk memanggil variabel, misalnya <code>umur</code> atau <code>nama</code>.</p>
-        </div>
-        <div class="mini-card">
-          <div class="ic">02</div>
-          <h4>Tipe Data</h4>
-          <p>Menentukan jenis nilai apa yang boleh disimpan, misalnya angka bulat, angka desimal, atau teks.</p>
-        </div>
-        <div class="mini-card">
-          <div class="ic">03</div>
-          <h4>Nilai / Isi Data</h4>
-          <p>Isi yang sedang disimpan di dalam variabel itu saat ini — sederhananya, ini "barang" yang ada di dalam kotaknya. Nilai ini bisa berubah selama program berjalan.</p>
-        </div>
-      </div>
-      <p class="term-note">Tiga hal ini — nama variabel, tipe data, dan nilai/isi data — selalu melekat pada setiap variabel di C++.</p>
-    </section>
-
-    <!-- ============ 02 TIPE DATA DASAR ============ -->
-    <section class="section" id="tipedata">
-      <div class="eyebrow">02 · Tipe Data</div>
-      <h2>Tipe Data Dasar di C++</h2>
-      <p class="lead">Setiap variabel di C++ <strong>wajib</strong> punya tipe data. Tipe data inilah yang memberi tahu komputer jenis nilai apa yang boleh disimpan, dan berapa banyak memori yang perlu disiapkan untuknya.</p>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Tipe</th><th>Untuk Menyimpan</th><th>Contoh Deklarasi</th><th>Contoh Nilai</th></tr>
-          </thead>
-          <tbody>
-            <tr><td class="lang-cpp">short</td><td>Bilangan bulat, rentang lebih kecil dari int</td><td><code>short jumlahKursi = 32;</code></td><td>32, -100</td></tr>
-            <tr><td class="lang-cpp">int</td><td>Bilangan bulat (tanpa koma), paling umum dipakai</td><td><code>int umur = 17;</code></td><td>17, -5, 0</td></tr>
-            <tr><td class="lang-cpp">long</td><td>Bilangan bulat, rentang lebih besar dari int</td><td><code>long jumlahPenduduk = 5000000;</code></td><td>5000000</td></tr>
-            <tr><td class="lang-cpp">float</td><td>Bilangan desimal (presisi tunggal)</td><td><code>float tinggi = 165.5;</code></td><td>165.5</td></tr>
-            <tr><td class="lang-cpp">double</td><td>Bilangan desimal (presisi lebih tinggi)</td><td><code>double luas = 12.75;</code></td><td>12.75</td></tr>
-            <tr><td class="lang-cpp">char</td><td>Satu karakter tunggal (kutip satu)</td><td><code>char kelas = 'A';</code></td><td>'A', '7', '#'</td></tr>
-            <tr><td class="lang-cpp">bool</td><td>Nilai benar/salah</td><td><code>bool lulus = true;</code></td><td>true, false</td></tr>
-            <tr><td class="lang-cpp">string</td><td>Rangkaian teks (kutip dua)</td><td><code>string nama = "Wayan";</code></td><td>"Wayan"</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="term-note" style="margin-top:-6px;">Perhatikan tanda kutipnya: <code>char</code> selalu pakai <strong>kutip satu</strong> ('A') dan isinya cuma satu karakter, sedangkan <code>string</code> pakai <strong>kutip dua</strong> ("Wayan") dan boleh berisi banyak karakter.</p>
-
-      <h3 style="margin-top:34px; font-size:19px;">Bilangan Bulat: <code>short</code> vs <code>int</code> vs <code>long</code></h3>
-      <p>Ketiganya sama-sama untuk bilangan bulat (tanpa koma). Bedanya ada di <strong>seberapa besar jatah memori</strong> yang disediakan untuk masing-masing — semakin besar jatahnya, semakin besar juga angka yang bisa ditampung.</p>
-      <div class="grid3">
-        <div class="mini-card">
-          <div class="ic">jatah paling kecil</div>
-          <h4><code>short</code></h4>
-          <p>Biasanya diberi jatah memori <strong>2 byte</strong> — paling hemat di antara ketiganya, tapi karena itu angka yang bisa ditampung juga paling terbatas. Cocok untuk angka yang sudah pasti kecil, misalnya jumlah kursi di satu kelas.</p>
-        </div>
-        <div class="mini-card">
-          <div class="ic">jatah standar</div>
-          <h4><code>int</code></h4>
-          <p>Biasanya diberi jatah memori <strong>4 byte</strong> — dua kali lipat dari <code>short</code>. Ini jatah "standar" yang cukup untuk hampir semua kebutuhan sehari-hari, makanya jadi pilihan default. Kalau ragu mau pakai yang mana, pakai <code>int</code>.</p>
-        </div>
-        <div class="mini-card">
-          <div class="ic">jatah paling besar</div>
-          <h4><code>long</code></h4>
-          <p>Jatah memorinya paling besar di antara ketiganya (minimal sama dengan <code>int</code>, dan di banyak compiler modern bisa dua kali lipatnya). Dipakai kalau angkanya diperkirakan terlalu besar untuk ditampung <code>int</code>, misalnya jumlah penduduk suatu negara.</p>
-        </div>
-      </div>
-      <p class="term-note">Bayangkan seperti tiga kotak penyimpanan dengan ukuran berbeda: <code>short</code> kotak paling kecil, <code>int</code> kotak ukuran sedang (paling sering dipakai), dan <code>long</code> kotak paling besar. Ukuran persis jatah memorinya (dalam byte) bisa sedikit berbeda tergantung compiler dan sistem operasinya — angka di atas adalah perkiraan yang umum ditemui, bukan aturan mutlak yang sama persis di semua tempat.</p>
-
-      <h3 style="margin-top:34px; font-size:19px;">Bilangan Desimal: <code>float</code> vs <code>double</code></h3>
-      <p>Keduanya untuk bilangan berkoma. Bedanya soal <strong>ketelitian</strong> — <code>double</code> lebih teliti (lebih akurat di belakang koma) daripada <code>float</code>.</p>
-      <div class="grid2">
-        <div class="mini-card">
-          <div class="ic">kurang teliti, hemat</div>
-          <h4><code>float</code></h4>
-          <p>Ketelitiannya lebih rendah, tapi memorinya lebih hemat. Cukup dipakai kalau angka desimalnya tidak perlu terlalu presisi.</p>
-        </div>
-        <div class="mini-card">
-          <div class="ic">lebih teliti, default</div>
-          <h4><code>double</code></h4>
-          <p>Ketelitiannya lebih tinggi. Ini tipe desimal yang paling sering dipakai sebagai pilihan default.</p>
-        </div>
-      </div>
-      <p class="term-note">Kalau ragu mau pakai <code>float</code> atau <code>double</code>, pakai <code>double</code> saja sebagai default.</p>
-
-      <p class="term-note" style="margin-top:14px;">Khusus <code>string</code>, kebiasaan yang baik dan direkomendasikan adalah menambahkan baris <code>#include &lt;string&gt;</code> di awal program — beda dengan <code>int</code>, <code>short</code>, <code>long</code>, <code>float</code>, <code>double</code>, <code>char</code>, dan <code>bool</code> yang sudah otomatis tersedia tanpa perlu <code>#include</code> tambahan. Di beberapa compiler (termasuk Dev-C++), program yang memakai <code>string</code> kadang tetap bisa dikompilasi walau baris ini dihilangkan, karena pustaka <code>&lt;string&gt;</code> kebetulan sudah "ikut terbawa" oleh <code>&lt;iostream&gt;</code>. Tapi ini bukan jaminan resmi dari bahasa C++ — supaya program kamu tetap aman dikompilasi di compiler manapun, biasakan selalu menuliskan <code>#include &lt;string&gt;</code> setiap kali memakai tipe data ini.</p>
-    </section>
-
-    <!-- ============ 03 ATURAN PENAMAAN ============ -->
-    <section class="section" id="penamaan">
-      <div class="eyebrow">03 · Aturan Penulisan</div>
-      <h2>Aturan Penamaan Variabel</h2>
-      <p class="lead">Nama variabel tidak boleh sembarangan — ada aturan yang wajib diikuti supaya kode bisa dijalankan (dikompilasi) dengan benar.</p>
-
-      <div class="callout-list">
-        <div class="callout highlight">
-          <div class="cnum">1</div>
-          <div>
-            <h4>Diawali huruf atau garis bawah</h4>
-            <p>Nama variabel harus dimulai dengan huruf (a-z, A-Z) atau garis bawah <code>_</code> — <strong>tidak boleh</strong> dimulai dengan angka.</p>
+        <div class="grid3">
+          <div class="mini-card">
+            <div class="ic">01</div>
+            <h4>Nama Variabel</h4>
+            <p>Sebutan unik yang kita pakai untuk memanggil variabel, misalnya <code>umur</code> atau <code>nama</code>.</p>
+          </div>
+          <div class="mini-card">
+            <div class="ic">02</div>
+            <h4>Tipe Data</h4>
+            <p>Menentukan jenis nilai apa yang boleh disimpan, misalnya angka bulat, angka desimal, atau teks.</p>
+          </div>
+          <div class="mini-card">
+            <div class="ic">03</div>
+            <h4>Nilai / Isi Data</h4>
+            <p>Isi yang sedang disimpan di dalam variabel itu saat ini — ini "barang" yang ada di dalam kotaknya, dan bisa berubah selama program berjalan.</p>
           </div>
         </div>
-        <div class="callout highlight">
-          <div class="cnum">2</div>
-          <div>
-            <h4>Hanya huruf, angka, garis bawah</h4>
-            <p>Tidak boleh ada spasi atau simbol lain seperti <code>-</code>, <code>#</code>, atau <code>@</code> di dalam nama variabel.</p>
-          </div>
-        </div>
-        <div class="callout highlight">
-          <div class="cnum">3</div>
-          <div>
-            <h4>Case-sensitive</h4>
-            <p>Huruf besar dan kecil dianggap berbeda. Variabel <code>nilai</code>, <code>Nilai</code>, dan <code>NILAI</code> adalah tiga variabel yang berbeda.</p>
-          </div>
-        </div>
-        <div class="callout highlight">
-          <div class="cnum">4</div>
-          <div>
-            <h4>Tidak boleh memakai kata kunci C++</h4>
-            <p>Kata seperti <code>int</code>, <code>if</code>, <code>class</code>, atau <code>return</code> sudah punya arti khusus di C++, jadi tidak bisa dipakai sebagai nama variabel.</p>
-          </div>
-        </div>
-        <div class="callout">
-          <div class="cnum">5</div>
-          <div>
-            <h4>Sebaiknya deskriptif</h4>
-            <p>Ini bukan aturan wajib, tapi kebiasaan yang baik: nama seperti <code>nilaiUjian</code> jauh lebih mudah dipahami daripada sekadar <code>x</code>.</p>
-          </div>
-        </div>
-      </div>
+        <p class="term-note">Tiga hal ini — nama variabel, tipe data, dan nilai/isi data — selalu melekat pada setiap variabel di C++.</p>
 
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Nama Variabel</th><th>Status</th><th>Alasan</th></tr></thead>
-          <tbody>
-            <tr><td><code>umur</code></td><td class="tp-ok">Valid</td><td>Diawali huruf, tanpa spasi/simbol</td></tr>
-            <tr><td><code>_tinggi</code></td><td class="tp-ok">Valid</td><td>Diawali garis bawah</td></tr>
-            <tr><td><code>nilaiUjian</code></td><td class="tp-ok">Valid</td><td>Pakai camelCase, tetap satu kata tanpa spasi</td></tr>
-            <tr><td><code>2kelas</code></td><td class="tp-no">Tidak valid</td><td>Diawali angka</td></tr>
-            <tr><td><code>nilai ujian</code></td><td class="tp-no">Tidak valid</td><td>Mengandung spasi</td></tr>
-            <tr><td><code>int</code></td><td class="tp-no">Tidak valid</td><td>Merupakan kata kunci C++</td></tr>
-          </tbody>
-        </table>
+        <h3 style="margin-top:34px; font-size:19px;">Tipe Data Dasar di C++</h3>
+        <p class="lead" style="font-size:16px;">Setiap variabel di C++ <strong>wajib</strong> punya tipe data. Tipe data inilah yang memberi tahu komputer jenis nilai apa yang boleh disimpan, dan berapa banyak memori yang perlu disiapkan untuknya.</p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Tipe</th><th>Untuk Menyimpan</th><th>Contoh Deklarasi</th><th>Contoh Nilai</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="lang-cpp">short</td><td>Bilangan bulat, rentang lebih kecil dari int</td><td><code>short jumlahKursi = 32;</code></td><td>32, -100</td></tr>
+              <tr><td class="lang-cpp">int</td><td>Bilangan bulat (tanpa koma), paling umum dipakai</td><td><code>int umur = 17;</code></td><td>17, -5, 0</td></tr>
+              <tr><td class="lang-cpp">long</td><td>Bilangan bulat, rentang lebih besar dari int</td><td><code>long jumlahPenduduk = 5000000;</code></td><td>5000000</td></tr>
+              <tr><td class="lang-cpp">float</td><td>Bilangan desimal (presisi tunggal)</td><td><code>float tinggi = 165.5;</code></td><td>165.5</td></tr>
+              <tr><td class="lang-cpp">double</td><td>Bilangan desimal (presisi lebih tinggi)</td><td><code>double luas = 12.75;</code></td><td>12.75</td></tr>
+              <tr><td class="lang-cpp">char</td><td>Satu karakter tunggal (kutip satu)</td><td><code>char kelas = 'A';</code></td><td>'A', '7', '#'</td></tr>
+              <tr><td class="lang-cpp">bool</td><td>Nilai benar/salah</td><td><code>bool lulus = true;</code></td><td>true, false</td></tr>
+              <tr><td class="lang-cpp">string</td><td>Rangkaian teks (kutip dua)</td><td><code>string nama = "Wayan";</code></td><td>"Wayan"</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="term-note" style="margin-top:-6px;">Perhatikan tanda kutipnya: <code>char</code> selalu pakai <strong>kutip satu</strong> ('A') dan isinya cuma satu karakter, sedangkan <code>string</code> pakai <strong>kutip dua</strong> ("Wayan") dan boleh berisi banyak karakter.</p>
+
+        <h4 style="margin-top:28px; font-size:16px;">Bilangan Bulat: <code>short</code> vs <code>int</code> vs <code>long</code></h4>
+        <p>Ketiganya sama-sama untuk bilangan bulat. Bedanya ada di <strong>seberapa besar jatah memori</strong> yang disediakan — semakin besar jatahnya, semakin besar juga angka yang bisa ditampung.</p>
+        <div class="grid3">
+          <div class="mini-card">
+            <div class="ic">jatah paling kecil</div>
+            <h4><code>short</code></h4>
+            <p>Biasanya diberi jatah memori <strong>2 byte</strong> — paling hemat, tapi angka yang bisa ditampung juga paling terbatas.</p>
+          </div>
+          <div class="mini-card">
+            <div class="ic">jatah standar</div>
+            <h4><code>int</code></h4>
+            <p>Biasanya diberi jatah memori <strong>4 byte</strong>. Ini pilihan "standar" untuk hampir semua kebutuhan sehari-hari.</p>
+          </div>
+          <div class="mini-card">
+            <div class="ic">jatah paling besar</div>
+            <h4><code>long</code></h4>
+            <p>Jatah memorinya paling besar. Dipakai kalau angkanya diperkirakan terlalu besar untuk ditampung <code>int</code>.</p>
+          </div>
+        </div>
+
+        <h4 style="margin-top:28px; font-size:16px;">Bilangan Desimal: <code>float</code> vs <code>double</code></h4>
+        <p>Keduanya untuk bilangan berkoma. Bedanya soal <strong>ketelitian</strong> — <code>double</code> lebih teliti daripada <code>float</code>. Kalau ragu mau pakai yang mana, pakai <code>double</code> saja sebagai default.</p>
+        <p class="term-note">Khusus <code>string</code>, kebiasaan yang baik adalah menambahkan baris <code>#include &lt;string&gt;</code> di awal program setiap kali memakai tipe data ini, supaya program dijamin bisa dikompilasi di compiler manapun.</p>
+
+        <!-- ===== GATE 1 ===== -->
+        <div class="gate-wrap">
+          <div class="gate-title">Uji Paham — Wajib Lolos untuk Lanjut</div>
+          <p class="gate-note">Jawab 5 soal berikut. Minimal <strong>4 dari 5 benar (80%)</strong> untuk membuka langkah berikutnya. Kalau belum lolos, baca ulang materi di atas lalu coba lagi dengan soal yang diacak ulang.</p>
+          <div class="quiz-card" id="g1Card">
+            <div class="q-progress" id="g1Progress"></div>
+            <div class="q-text" id="g1Text"></div>
+            <div class="q-options" id="g1Options"></div>
+            <div class="q-explain" id="g1Explain"></div>
+            <div class="q-nav">
+              <span style="font-family:var(--font-mono); font-size:12px; color:var(--text-faint);" id="g1ScoreLabel">Skor: 0</span>
+              <button class="btn primary" id="g1NextBtn" disabled>Soal Berikutnya →</button>
+            </div>
+          </div>
+          <div class="quiz-result" id="g1Result">
+            <div class="score" id="g1ResultScore">0/5</div>
+            <p class="rmsg" id="g1ResultMsg"></p>
+            <div class="ractions">
+              <button class="btn hidden" id="g1RetryBtn">Coba Lagi</button>
+              <button class="btn mint hidden" id="g1UnlockBtn">Lanjut ke Langkah 02 →</button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- ============ 04 DEKLARASI & INISIALISASI ============ -->
-    <section class="section" id="deklarasi">
-      <div class="eyebrow">04 · Praktik</div>
-      <h2>Deklarasi dan Inisialisasi</h2>
-      <p class="lead">Ada dua istilah yang sering dipakai bergantian, padahal artinya berbeda:</p>
-      <div class="grid2">
-        <div class="mini-card">
-          <div class="ic">langkah 1</div>
-          <h4>Deklarasi</h4>
-          <p>Proses "membuat" variabel — memberi tahu compiler bahwa akan ada sebuah kotak bernama tertentu dengan tipe data tertentu. Contoh: <code>int umur;</code></p>
+    <!-- ============ STEP 2 — ATURAN PENAMAAN ============ -->
+    <section class="step-panel" id="step2">
+      <div class="step-lockmsg" id="lockmsg2">
+        <div class="lock-ic">🔒</div>
+        <h3>Langkah 02 — Aturan Penamaan Variabel</h3>
+        <p>Selesaikan dulu uji paham di langkah sebelumnya (minimal 80% benar) untuk membuka materi ini.</p>
+      </div>
+      <div class="step-content" id="stepcontent2">
+      <div class="section">
+        <div class="eyebrow">02 · Aturan Penulisan</div>
+        <h2>Aturan Penamaan Variabel</h2>
+        <p class="lead">Nama variabel tidak boleh sembarangan — ada aturan yang wajib diikuti supaya kode bisa dijalankan (dikompilasi) dengan benar.</p>
+
+        <div class="callout-list">
+          <div class="callout highlight">
+            <div class="cnum">1</div>
+            <div>
+              <h4>Diawali huruf atau garis bawah</h4>
+              <p>Nama variabel harus dimulai dengan huruf (a-z, A-Z) atau garis bawah <code>_</code> — <strong>tidak boleh</strong> dimulai dengan angka.</p>
+            </div>
+          </div>
+          <div class="callout highlight">
+            <div class="cnum">2</div>
+            <div>
+              <h4>Hanya huruf, angka, garis bawah</h4>
+              <p>Tidak boleh ada spasi atau simbol lain seperti <code>-</code>, <code>#</code>, atau <code>@</code> di dalam nama variabel.</p>
+            </div>
+          </div>
+          <div class="callout highlight">
+            <div class="cnum">3</div>
+            <div>
+              <h4>Case-sensitive</h4>
+              <p>Huruf besar dan kecil dianggap berbeda. Variabel <code>nilai</code>, <code>Nilai</code>, dan <code>NILAI</code> adalah tiga variabel yang berbeda.</p>
+            </div>
+          </div>
+          <div class="callout highlight">
+            <div class="cnum">4</div>
+            <div>
+              <h4>Tidak boleh memakai kata kunci C++</h4>
+              <p>Kata seperti <code>int</code>, <code>if</code>, <code>class</code>, atau <code>return</code> sudah punya arti khusus di C++, jadi tidak bisa dipakai sebagai nama variabel.</p>
+            </div>
+          </div>
+          <div class="callout">
+            <div class="cnum">5</div>
+            <div>
+              <h4>Sebaiknya deskriptif</h4>
+              <p>Ini bukan aturan wajib, tapi kebiasaan yang baik: nama seperti <code>nilaiUjian</code> jauh lebih mudah dipahami daripada sekadar <code>x</code>.</p>
+            </div>
+          </div>
         </div>
-        <div class="mini-card">
-          <div class="ic">langkah 2</div>
-          <h4>Inisialisasi</h4>
-          <p>Proses mengisi variabel dengan nilai pertama kalinya. Contoh: <code>umur = 17;</code></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nama Variabel</th><th>Status</th><th>Alasan</th></tr></thead>
+            <tbody>
+              <tr><td><code>umur</code></td><td class="tp-ok">Valid</td><td>Diawali huruf, tanpa spasi/simbol</td></tr>
+              <tr><td><code>_tinggi</code></td><td class="tp-ok">Valid</td><td>Diawali garis bawah</td></tr>
+              <tr><td><code>nilaiUjian</code></td><td class="tp-ok">Valid</td><td>Pakai camelCase, tetap satu kata tanpa spasi</td></tr>
+              <tr><td><code>2kelas</code></td><td class="tp-no">Tidak valid</td><td>Diawali angka</td></tr>
+              <tr><td><code>nilai ujian</code></td><td class="tp-no">Tidak valid</td><td>Mengandung spasi</td></tr>
+              <tr><td><code>int</code></td><td class="tp-no">Tidak valid</td><td>Merupakan kata kunci C++</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===== GATE 2 ===== -->
+        <div class="gate-wrap">
+          <div class="gate-title">Uji Paham — Wajib Lolos untuk Lanjut</div>
+          <p class="gate-note">5 soal, minimal <strong>4 benar (80%)</strong> untuk membuka langkah Deklarasi &amp; Inisialisasi.</p>
+          <div class="quiz-card" id="g2Card">
+            <div class="q-progress" id="g2Progress"></div>
+            <div class="q-text" id="g2Text"></div>
+            <div class="q-options" id="g2Options"></div>
+            <div class="q-explain" id="g2Explain"></div>
+            <div class="q-nav">
+              <span style="font-family:var(--font-mono); font-size:12px; color:var(--text-faint);" id="g2ScoreLabel">Skor: 0</span>
+              <button class="btn primary" id="g2NextBtn" disabled>Soal Berikutnya →</button>
+            </div>
+          </div>
+          <div class="quiz-result" id="g2Result">
+            <div class="score" id="g2ResultScore">0/5</div>
+            <p class="rmsg" id="g2ResultMsg"></p>
+            <div class="ractions">
+              <button class="btn hidden" id="g2RetryBtn">Coba Lagi</button>
+              <button class="btn mint hidden" id="g2UnlockBtn">Lanjut ke Langkah 03 →</button>
+            </div>
+          </div>
         </div>
       </div>
-      <p>Keduanya bisa dilakukan sekaligus dalam satu baris — cara ini yang paling sering dipakai:</p>
+      </div><!-- /step-content -->
+    </section>
 
-      <div class="code-block protected-code">
-        <div class="code-head"><span>deklarasi.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
-        <div class="code-body">
+    <!-- ============ STEP 3 — DEKLARASI & INISIALISASI ============ -->
+    <section class="step-panel" id="step3">
+      <div class="step-lockmsg" id="lockmsg3">
+        <div class="lock-ic">🔒</div>
+        <h3>Langkah 03 — Deklarasi &amp; Inisialisasi</h3>
+        <p>Selesaikan dulu uji paham di langkah sebelumnya (minimal 80% benar) untuk membuka materi ini.</p>
+      </div>
+      <div class="step-content" id="stepcontent3">
+      <div class="section">
+        <div class="eyebrow">03 · Praktik</div>
+        <h2>Deklarasi dan Inisialisasi</h2>
+        <p class="lead">Ada dua istilah yang sering dipakai bergantian, padahal artinya berbeda:</p>
+        <div class="grid2">
+          <div class="mini-card">
+            <div class="ic">langkah 1</div>
+            <h4>Deklarasi</h4>
+            <p>Proses "membuat" variabel — memberi tahu compiler bahwa akan ada sebuah kotak bernama tertentu dengan tipe data tertentu. Contoh: <code>int umur;</code></p>
+          </div>
+          <div class="mini-card">
+            <div class="ic">langkah 2</div>
+            <h4>Inisialisasi</h4>
+            <p>Proses mengisi variabel dengan nilai pertama kalinya. Contoh: <code>umur = 17;</code></p>
+          </div>
+        </div>
+        <p>Keduanya bisa dilakukan sekaligus dalam satu baris — cara ini yang paling sering dipakai:</p>
+
+        <div class="code-block protected-code">
+          <div class="code-head"><span>deklarasi.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
+          <div class="code-body">
 <div class="code-line" data-ln="1"><span class="tk-pre">#include</span> <span class="tk-str">&lt;iostream&gt;</span></div>
 <div class="code-line" data-ln="2"></div>
 <div class="code-line" data-ln="3"><span class="tk-kw">using</span> <span class="tk-kw">namespace</span> std<span class="tk-punc">;</span></div>
@@ -711,23 +791,19 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
 <div class="code-line" data-ln="12">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Nilai ekstra saya "</span> <span class="tk-punc">&lt;&lt;</span> nilai <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
 <div class="code-line" data-ln="13">    <span class="tk-kw">return</span> <span class="tk-str">0</span><span class="tk-punc">;</span></div>
 <div class="code-line" data-ln="14"><span class="tk-punc">}</span></div>
+          </div>
         </div>
-      </div>
 
-      <div class="console-block">
-        <div class="console-head">Tampilan di jendela Console setelah ditekan F11</div>
-        <div class="console-body">
-          <div class="cline">Saya Umur 17</div>
-          <div class="cline">Nilai ekstra saya 90</div>
-          <div class="cmeta">Process exited after 0.01 seconds with return value 0<br>Press any key to continue . . .</div>
+        <div class="console-block">
+          <div class="console-head"><span>Simulasi tampilan Console setelah ditekan F11</span><button class="btn console-replay" data-replay="demoA">↻ Putar Ulang</button></div>
+          <div class="console-body" id="consoleBodyA"></div>
         </div>
-      </div>
 
-      <p>Kalau ada beberapa variabel dengan tipe data yang <strong>sama</strong>, kita juga bisa mendeklarasikannya sekaligus dalam satu baris, dipisah dengan koma:</p>
+        <p>Kalau ada beberapa variabel dengan tipe data yang <strong>sama</strong>, kita juga bisa mendeklarasikannya sekaligus dalam satu baris, dipisah dengan koma:</p>
 
-      <div class="code-block protected-code">
-        <div class="code-head"><span>deklarasi-ganda.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
-        <div class="code-body">
+        <div class="code-block protected-code">
+          <div class="code-head"><span>deklarasi-ganda.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
+          <div class="code-body">
 <div class="code-line" data-ln="1"><span class="tk-pre">#include</span> <span class="tk-str">&lt;iostream&gt;</span></div>
 <div class="code-line" data-ln="2"></div>
 <div class="code-line" data-ln="3"><span class="tk-kw">using</span> <span class="tk-kw">namespace</span> std<span class="tk-punc">;</span></div>
@@ -739,29 +815,136 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
 <div class="code-line" data-ln="9">    cout <span class="tk-punc">&lt;&lt;</span> hari <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"/"</span> <span class="tk-punc">&lt;&lt;</span> bulan <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"/"</span> <span class="tk-punc">&lt;&lt;</span> tahun <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
 <div class="code-line" data-ln="10">    <span class="tk-kw">return</span> <span class="tk-str">0</span><span class="tk-punc">;</span></div>
 <div class="code-line" data-ln="11"><span class="tk-punc">}</span></div>
+          </div>
+        </div>
+
+        <div class="console-block">
+          <div class="console-head"><span>Simulasi tampilan Console setelah ditekan F11</span><button class="btn console-replay" data-replay="demoB">↻ Putar Ulang</button></div>
+          <div class="console-body" id="consoleBodyB"></div>
+        </div>
+
+        <div class="try-it">✏️ Ketik kedua program ini sendiri di Dev-C++, jangan copy-paste — supaya terbiasa dengan penulisannya.</div>
+
+        <!-- ===== GATE 3 ===== -->
+        <div class="gate-wrap">
+          <div class="gate-title">Uji Paham — Wajib Lolos untuk Lanjut</div>
+          <p class="gate-note">5 soal, minimal <strong>4 benar (80%)</strong> untuk membuka langkah Hal Penting Lainnya.</p>
+          <div class="quiz-card" id="g3Card">
+            <div class="q-progress" id="g3Progress"></div>
+            <div class="q-text" id="g3Text"></div>
+            <div class="q-options" id="g3Options"></div>
+            <div class="q-explain" id="g3Explain"></div>
+            <div class="q-nav">
+              <span style="font-family:var(--font-mono); font-size:12px; color:var(--text-faint);" id="g3ScoreLabel">Skor: 0</span>
+              <button class="btn primary" id="g3NextBtn" disabled>Soal Berikutnya →</button>
+            </div>
+          </div>
+          <div class="quiz-result" id="g3Result">
+            <div class="score" id="g3ResultScore">0/5</div>
+            <p class="rmsg" id="g3ResultMsg"></p>
+            <div class="ractions">
+              <button class="btn hidden" id="g3RetryBtn">Coba Lagi</button>
+              <button class="btn mint hidden" id="g3UnlockBtn">Lanjut ke Langkah 04 →</button>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div class="console-block">
-        <div class="console-head">Tampilan di jendela Console setelah ditekan F11</div>
-        <div class="console-body">
-          <div class="cline">17/8/1945</div>
-          <div class="cmeta">Process exited after 0.01 seconds with return value 0<br>Press any key to continue . . .</div>
-        </div>
-      </div>
-
-      <div class="try-it">✏️ Ketik kedua program ini sendiri di Dev-C++, jangan copy-paste — supaya terbiasa dengan penulisannya.</div>
+      </div><!-- /step-content -->
     </section>
 
-    <!-- ============ 05 CONTOH PROGRAM LENGKAP ============ -->
-    <section class="section" id="contoh">
-      <div class="eyebrow">05 · Praktik Gabungan</div>
-      <h2>Contoh Program Lengkap</h2>
-      <p class="lead">Sekarang mari gabungkan beberapa tipe data sekaligus dalam satu program sederhana yang menampilkan data seorang siswa.</p>
+    <!-- ============ STEP 4 — HAL PENTING LAINNYA ============ -->
+    <section class="step-panel" id="step4">
+      <div class="step-lockmsg" id="lockmsg4">
+        <div class="lock-ic">🔒</div>
+        <h3>Langkah 04 — Hal Penting Lainnya</h3>
+        <p>Selesaikan dulu uji paham di langkah sebelumnya (minimal 80% benar) untuk membuka materi ini.</p>
+      </div>
+      <div class="step-content" id="stepcontent4">
+      <div class="section">
+        <div class="eyebrow">04 · Bekal Tambahan</div>
+        <h2>Hal Penting Lainnya</h2>
+        <p class="lead">Beberapa kesalahan kecil yang paling sering terjadi saat baru belajar variabel dan tipe data.</p>
 
-      <div class="code-block protected-code">
-        <div class="code-head"><span>datasiswa.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
-        <div class="code-body">
+        <div class="grid2">
+          <div class="mini-card">
+            <div class="ic">⚠️ kutip keliru</div>
+            <h4><code>char</code> vs <code>string</code></h4>
+            <p><code>char</code> selalu pakai kutip satu dan cuma satu karakter, misalnya <code>char g = 'A';</code>. Kalau isinya lebih dari satu karakter atau pakai kutip dua, itu tandanya seharusnya memakai <code>string</code>.</p>
+          </div>
+          <div class="mini-card">
+            <div class="ic">⚠️ tipe tidak cocok</div>
+            <h4>Nilai harus sesuai tipe</h4>
+            <p>Jangan mengisi <code>bool</code> dengan angka selain konteks <code>true</code>/<code>false</code>, atau mengisi <code>int</code> dengan teks — kode bisa gagal dikompilasi atau hasilnya tidak sesuai harapan.</p>
+          </div>
+        </div>
+        <p class="term-note" style="margin-top:14px;">Beberapa contoh kata kunci C++ yang tidak boleh dipakai sebagai nama variabel: <code>int</code>, <code>short</code>, <code>long</code>, <code>float</code>, <code>double</code>, <code>char</code>, <code>bool</code>, <code>if</code>, <code>else</code>, <code>for</code>, <code>while</code>, <code>return</code>, <code>class</code>. Kalau nama variabel ditolak compiler padahal terlihat wajar, coba periksa apakah nama itu kebetulan sama dengan salah satu kata kunci ini.</p>
+
+        <h3 style="font-size:17px; margin-top:34px;">Latihan Santai: Cocokkan Nilai dengan Tipe Data</h3>
+        <p>Klik salah satu <strong>nilai</strong> di kolom kiri, lalu klik <strong>kotak tipe data</strong> di kolom kanan yang menurutmu paling cocok. Ini cuma latihan santai (tidak wajib lolos) untuk melatih intuisimu sebelum uji paham di bawah.</p>
+        <div class="match-wrap">
+          <div class="match-top">
+            <div class="game-stat">Cocok: <b id="matchFound">0</b> / <span id="matchTotal">5</span></div>
+            <div class="game-stat">Salah pilih: <b id="matchWrong">0</b></div>
+          </div>
+          <div class="match-grid">
+            <div>
+              <div class="match-col-label">Nilai</div>
+              <div id="matchValues"></div>
+            </div>
+            <div>
+              <div class="match-col-label">Tipe Data</div>
+              <div id="matchTypes"></div>
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn" id="matchReset">Acak Ulang</button>
+          </div>
+          <div class="game-feedback" id="matchFeedback"></div>
+        </div>
+
+        <!-- ===== GATE 4 ===== -->
+        <div class="gate-wrap">
+          <div class="gate-title">Uji Paham — Wajib Lolos untuk Lanjut</div>
+          <p class="gate-note">5 soal, minimal <strong>4 benar (80%)</strong> untuk membuka Contoh Program Lengkap.</p>
+          <div class="quiz-card" id="g4Card">
+            <div class="q-progress" id="g4Progress"></div>
+            <div class="q-text" id="g4Text"></div>
+            <div class="q-options" id="g4Options"></div>
+            <div class="q-explain" id="g4Explain"></div>
+            <div class="q-nav">
+              <span style="font-family:var(--font-mono); font-size:12px; color:var(--text-faint);" id="g4ScoreLabel">Skor: 0</span>
+              <button class="btn primary" id="g4NextBtn" disabled>Soal Berikutnya →</button>
+            </div>
+          </div>
+          <div class="quiz-result" id="g4Result">
+            <div class="score" id="g4ResultScore">0/5</div>
+            <p class="rmsg" id="g4ResultMsg"></p>
+            <div class="ractions">
+              <button class="btn hidden" id="g4RetryBtn">Coba Lagi</button>
+              <button class="btn mint hidden" id="g4UnlockBtn">Lanjut ke Langkah 05 →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div><!-- /step-content -->
+    </section>
+
+    <!-- ============ STEP 5 — CONTOH PROGRAM LENGKAP ============ -->
+    <section class="step-panel" id="step5">
+      <div class="step-lockmsg" id="lockmsg5">
+        <div class="lock-ic">🔒</div>
+        <h3>Langkah 05 — Contoh Program Lengkap</h3>
+        <p>Selesaikan dulu uji paham di langkah sebelumnya (minimal 80% benar) untuk membuka materi ini.</p>
+      </div>
+      <div class="step-content" id="stepcontent5">
+      <div class="section">
+        <div class="eyebrow">05 · Praktik Gabungan</div>
+        <h2>Contoh Program Lengkap</h2>
+        <p class="lead">Sekarang mari gabungkan beberapa tipe data sekaligus dalam satu program sederhana yang menampilkan data seorang siswa.</p>
+
+        <div class="code-block protected-code">
+          <div class="code-head"><span>datasiswa.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
+          <div class="code-body">
 <div class="code-line" data-ln="1"><span class="tk-pre">#include</span> <span class="tk-str">&lt;iostream&gt;</span></div>
 <div class="code-line" data-ln="2"><span class="tk-pre">#include</span> <span class="tk-str">&lt;string&gt;</span></div>
 <div class="code-line" data-ln="3"></div>
@@ -781,167 +964,90 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
 <div class="code-line" data-ln="17">    cout <span class="tk-punc">&lt;&lt;</span> <span class="tk-str">"Aktif Ekskul: "</span> <span class="tk-punc">&lt;&lt;</span> aktifEkskul <span class="tk-punc">&lt;&lt;</span> endl<span class="tk-punc">;</span></div>
 <div class="code-line" data-ln="18">    <span class="tk-kw">return</span> <span class="tk-str">0</span><span class="tk-punc">;</span></div>
 <div class="code-line" data-ln="19"><span class="tk-punc">}</span></div>
-        </div>
-      </div>
-
-      <div class="console-block">
-        <div class="console-head">Tampilan di jendela Console setelah ditekan F11</div>
-        <div class="console-body">
-          <div class="cline">Nama: Kadek</div>
-          <div class="cline">Umur: 16</div>
-          <div class="cline">Tinggi: 165.5</div>
-          <div class="cline">Kelas: B</div>
-          <div class="cline">Aktif Ekskul: 1</div>
-          <div class="cmeta">Process exited after 0.01 seconds with return value 0<br>Press any key to continue . . .</div>
-        </div>
-      </div>
-
-      <div class="try-it">✏️ Ketik program ini sendiri, ganti isinya dengan data dirimu, lalu jalankan dengan <strong>F11</strong>.</div>
-
-      <h3 style="margin-top:34px; font-size:19px;">Penjelasan Bagian Penting</h3>
-      <div class="explain-list">
-        <div class="explain-item">
-          <div class="badge">2</div>
-          <div>
-            <code class="line-code">#include &lt;string&gt;</code>
-            <p>Pustaka tambahan yang direkomendasikan untuk selalu disertakan setiap kali memakai tipe data <code>string</code>, supaya program dijamin bisa dikompilasi di compiler manapun (lihat catatan di bagian Tipe Data Dasar).</p>
           </div>
         </div>
-        <div class="explain-item">
-          <div class="badge">7-11</div>
-          <div>
-            <code class="line-code">string nama = "Kadek"; ...</code>
-            <p>Lima variabel dideklarasikan sekaligus diisi (deklarasi + inisialisasi), masing-masing dengan tipe data yang sesuai jenis datanya.</p>
-          </div>
-        </div>
-        <div class="explain-item">
-          <div class="badge">17</div>
-          <div>
-            <code class="line-code">cout &lt;&lt; aktifEkskul;</code>
-            <p>Perhatikan hasilnya di Console: nilai <code>bool</code> <code>true</code> ditampilkan sebagai angka <strong>1</strong> (dan <code>false</code> sebagai <strong>0</strong>), bukan sebagai tulisan "true"/"false". Ini kebiasaan bawaan <code>cout</code> di C++.</p>
-          </div>
-        </div>
-      </div>
 
-      <h3 style="font-size:17px; margin-top:38px;">Uji Pemahaman: Perburuan Deklarasi dan Inisialisasi yang Salah</h3>
-      <p>Sekarang coba uji pemahamanmu langsung. Klik setiap baris deklarasi variabel yang <strong>salah</strong> — entah karena nama variabelnya melanggar aturan penamaan, atau nilainya tidak cocok dengan tipe datanya. Tidak semua baris salah — perhatikan baik-baik! Ingat: kalau nama variabel ingin terdiri dari beberapa kata, gunakan garis bawah <code>_</code> sebagai pengganti spasi, misalnya <code>nilai_ujian</code> — bukan <code>nilai ujian</code>.</p>
-      <div class="game-wrap">
-        <div class="game-top">
-          <div class="game-stat">Ditemukan: <b id="gameFound">0</b> / <span id="gameTotal">0</span></div>
-          <div class="game-stat">Salah pilih: <b id="gameWrong">0</b></div>
+        <div class="console-block">
+          <div class="console-head"><span>Simulasi tampilan Console setelah ditekan F11</span><button class="btn console-replay" data-replay="demoC">↻ Putar Ulang</button></div>
+          <div class="console-body" id="consoleBodyC"></div>
         </div>
-        <div id="gameLines"></div>
-        <div class="game-actions">
-          <button class="btn primary" id="gameCheck">Periksa Jawaban</button>
-          <button class="btn" id="gameReset">Acak Ulang</button>
+
+        <div class="try-it">✏️ Ketik program ini sendiri, ganti isinya dengan data dirimu, lalu jalankan dengan <strong>F11</strong>.</div>
+
+        <h3 style="margin-top:34px; font-size:19px;">Penjelasan Bagian Penting</h3>
+        <div class="explain-list">
+          <div class="explain-item">
+            <div class="badge">2</div>
+            <div>
+              <code class="line-code">#include &lt;string&gt;</code>
+              <p>Pustaka tambahan yang direkomendasikan untuk selalu disertakan setiap kali memakai tipe data <code>string</code>, supaya program dijamin bisa dikompilasi di compiler manapun.</p>
+            </div>
+          </div>
+          <div class="explain-item">
+            <div class="badge">7-11</div>
+            <div>
+              <code class="line-code">string nama = "Kadek"; ...</code>
+              <p>Lima variabel dideklarasikan sekaligus diisi (deklarasi + inisialisasi), masing-masing dengan tipe data yang sesuai jenis datanya.</p>
+            </div>
+          </div>
+          <div class="explain-item">
+            <div class="badge">17</div>
+            <div>
+              <code class="line-code">cout &lt;&lt; aktifEkskul;</code>
+              <p>Perhatikan hasilnya di Console: nilai <code>bool</code> <code>true</code> ditampilkan sebagai angka <strong>1</strong> (dan <code>false</code> sebagai <strong>0</strong>), bukan sebagai tulisan "true"/"false". Ini kebiasaan bawaan <code>cout</code> di C++.</p>
+            </div>
+          </div>
         </div>
-        <div class="game-feedback" id="gameFeedback"></div>
+
+        <h3 style="font-size:17px; margin-top:38px;">Latihan Santai: Perburuan Deklarasi dan Inisialisasi yang Salah</h3>
+        <p>Klik setiap baris deklarasi variabel yang <strong>salah</strong> — entah karena nama variabelnya melanggar aturan penamaan, atau nilainya tidak cocok dengan tipe datanya. Tidak semua baris salah — perhatikan baik-baik! (Ini juga latihan santai, tidak wajib lolos untuk lanjut.)</p>
+        <div class="game-wrap">
+          <div class="game-top">
+            <div class="game-stat">Ditemukan: <b id="gameFound">0</b> / <span id="gameTotal">0</span></div>
+            <div class="game-stat">Salah pilih: <b id="gameWrong">0</b></div>
+          </div>
+          <div id="gameLines"></div>
+          <div class="game-actions">
+            <button class="btn primary" id="gameCheck">Periksa Jawaban</button>
+            <button class="btn" id="gameReset">Acak Ulang</button>
+          </div>
+          <div class="game-feedback" id="gameFeedback"></div>
+        </div>
+
+        <div class="step-actions">
+          <button class="btn primary" id="btnLanjutLatihan">Lanjut ke Latihan →</button>
+        </div>
       </div>
+      </div><!-- /step-content -->
     </section>
 
-    <!-- ============ 06 MATERI TAMBAHAN ============ -->
-    <section class="section" id="materi">
-      <div class="eyebrow">06 · Bekal Tambahan</div>
-      <h2>Hal Penting Lainnya</h2>
-      <p class="lead">Beberapa kesalahan kecil yang paling sering terjadi saat baru belajar variabel dan tipe data.</p>
-
-      <div class="grid2">
-        <div class="mini-card">
-          <div class="ic">⚠️ kutip keliru</div>
-          <h4><code>char</code> vs <code>string</code></h4>
-          <p><code>char</code> selalu pakai kutip satu dan cuma satu karakter, misalnya <code>char g = 'A';</code>. Kalau isinya lebih dari satu karakter atau pakai kutip dua, itu tandanya seharusnya memakai <code>string</code>.</p>
-        </div>
-        <div class="mini-card">
-          <div class="ic">⚠️ tipe tidak cocok</div>
-          <h4>Nilai harus sesuai tipe</h4>
-          <p>Jangan mengisi <code>bool</code> dengan angka selain konteks <code>true</code>/<code>false</code>, atau mengisi <code>int</code> dengan teks — kode bisa gagal dikompilasi atau hasilnya tidak sesuai harapan.</p>
-        </div>
+    <!-- ============ STEP 6 — LATIHAN & KIRIM HASIL ============ -->
+    <section class="step-panel" id="step6">
+      <div class="step-lockmsg" id="lockmsg6">
+        <div class="lock-ic">🔒</div>
+        <h3>Langkah 06 — Latihan &amp; Kirim Hasil</h3>
+        <p>Selesaikan dulu uji paham di langkah sebelumnya (minimal 80% benar) untuk membuka materi ini.</p>
       </div>
-
-      <p class="term-note" style="margin-top:14px;">Beberapa contoh kata kunci C++ yang tidak boleh dipakai sebagai nama variabel: <code>int</code>, <code>short</code>, <code>long</code>, <code>float</code>, <code>double</code>, <code>char</code>, <code>bool</code>, <code>if</code>, <code>else</code>, <code>for</code>, <code>while</code>, <code>return</code>, <code>class</code>. Kalau nama variabel ditolak compiler padahal terlihat wajar, coba periksa apakah nama itu kebetulan sama dengan salah satu kata kunci ini.</p>
-    </section>
-
-    <!-- ============ 07 KUIS ============ -->
-    <section class="section" id="kuis">
-      <div class="eyebrow">07 · Uji Pemahaman</div>
-      <h2>Kuis Interaktif</h2>
-      <p class="lead">Kuis ini menguji pemahamanmu tentang <strong>variabel, tipe data, dan aturan penamaan</strong> yang sudah kita bahas.</p>
-
-      <h3 style="font-size:17px;">Bagian A — Pilihan Ganda</h3>
-      <div class="quiz-card" id="quizCard">
-        <div class="q-progress" id="qProgress">Soal 1 dari 7</div>
-        <div class="q-text" id="qText"></div>
-        <div class="q-options" id="qOptions"></div>
-        <div class="q-explain" id="qExplain"></div>
-        <div class="q-nav">
-          <span style="font-family:var(--font-mono); font-size:12px; color:var(--text-faint);" id="qScoreLabel">Skor: 0</span>
-          <button class="btn primary" id="qNextBtn" disabled>Soal Berikutnya →</button>
-        </div>
-      </div>
-      <div class="quiz-result" id="quizResult">
-        <div class="score" id="quizResultScore">0/7</div>
-        <p id="quizResultMsg" style="margin-top:8px;"></p>
-        <button class="btn" id="quizRestart">Ulangi Kuis</button>
-      </div>
-
-      <h3 style="font-size:17px; margin-top:38px;">Bagian B — Cocokkan Nilai dengan Tipe Data</h3>
-      <p>Klik salah satu <strong>nilai</strong> di kolom kiri, lalu klik <strong>kotak tipe data</strong> di kolom kanan yang menurutmu paling cocok. Contoh: nilai <code>17</code> cocok dipasangkan dengan kotak <code>int</code>, nilai <code>"Wayan"</code> cocok dipasangkan dengan kotak <code>string</code>, begitu seterusnya.</p>
-      <div class="match-wrap">
-        <div class="match-top">
-          <div class="game-stat">Cocok: <b id="matchFound">0</b> / <span id="matchTotal">5</span></div>
-          <div class="game-stat">Salah pilih: <b id="matchWrong">0</b></div>
-        </div>
-        <div class="match-grid">
-          <div>
-            <div class="match-col-label">Nilai</div>
-            <div id="matchValues"></div>
-          </div>
-          <div>
-            <div class="match-col-label">Tipe Data</div>
-            <div id="matchTypes"></div>
-          </div>
-        </div>
-        <div class="match-actions">
-          <button class="btn" id="matchReset">Acak Ulang</button>
-        </div>
-        <div class="game-feedback" id="matchFeedback"></div>
-      </div>
-
-      <h3 style="font-size:17px; margin-top:38px;">Kirim Hasil ke Pembina</h3>
-      <p>Sebelum mengirim, pastikan kamu sudah menyelesaikan: kuis pilihan ganda (Bagian A), permainan Cocokkan Nilai &amp; Tipe Data (Bagian B) di atas, dan permainan <strong>Perburuan Deklarasi dan Inisialisasi yang Salah</strong> di bagian Contoh Program (05). Baru setelah itu isi data di bawah untuk mengirim hasilmu.</p>
-      <div class="quiz-card">
-        <div class="idform" id="formIndividu">
-          <div class="field"><label for="qNama">Nama Lengkap</label><input id="qNama" type="text" placeholder="Nama kamu"></div>
-          <div class="field"><label for="qKelas">Kelas</label><input id="qKelas" type="text" placeholder="Contoh: XII 1"></div>
-          <div class="field"><label for="qNis">NIS</label><input id="qNis" type="text" placeholder="Nomor Induk Siswa"></div>
-          <div class="field"><label for="qAbsen">No. Absen</label><input id="qAbsen" type="text" placeholder="Nomor absen"></div>
+      <div class="step-content" id="stepcontent6">
+      <div class="section">
+        <div class="eyebrow">06 · Praktik Mandiri</div>
+        <h2>Latihan: Data Diri dengan Variabel</h2>
+        <div class="task-box">
+          <h4>Tugas</h4>
+          <p style="margin-top:10px;">Buatlah program C++ di Dev-C++ yang mendeklarasikan variabel data dirimu dengan <strong>tipe data yang sesuai</strong>, lalu menampilkannya dengan <code>cout</code> (satu informasi per baris, pakai <code>endl</code>). Variabel yang harus dibuat:</p>
+          <ul class="checklist">
+            <li><span class="bullet">▸</span><span>Nama lengkap — tipe <code>string</code></span></li>
+            <li><span class="bullet">▸</span><span>Kelas — tipe <code>string</code></span></li>
+            <li><span class="bullet">▸</span><span>Umur — tipe <code>int</code></span></li>
+            <li><span class="bullet">▸</span><span>Tinggi badan (cm) — tipe <code>double</code></span></li>
+            <li><span class="bullet">▸</span><span>Nilai rata-rata ujian terakhir — tipe <code>float</code> atau <code>double</code></span></li>
+            <li><span class="bullet">▸</span><span>Status aktif ekstrakurikuler — tipe <code>bool</code></span></li>
+          </ul>
         </div>
 
-        <button class="btn primary" id="submitHasil">Kirim Hasil</button>
-        <div id="submitResult"></div>
-      </div>
-    </section>
-
-    <!-- ============ 08 LATIHAN ============ -->
-    <section class="section" id="latihan">
-      <div class="eyebrow">08 · Praktik Mandiri</div>
-      <h2>Latihan: Data Diri dengan Variabel</h2>
-      <div class="task-box">
-        <h4>Tugas</h4>
-        <p style="margin-top:10px;">Buatlah program C++ di Dev-C++ yang mendeklarasikan variabel data dirimu dengan <strong>tipe data yang sesuai</strong>, lalu menampilkannya dengan <code>cout</code> (satu informasi per baris, pakai <code>endl</code>). Variabel yang harus dibuat:</p>
-        <ul class="checklist">
-          <li><span class="bullet">▸</span><span>Nama lengkap — tipe <code>string</code></span></li>
-          <li><span class="bullet">▸</span><span>Kelas — tipe <code>string</code></span></li>
-          <li><span class="bullet">▸</span><span>Umur — tipe <code>int</code></span></li>
-          <li><span class="bullet">▸</span><span>Tinggi badan (cm) — tipe <code>double</code></span></li>
-          <li><span class="bullet">▸</span><span>Nilai rata-rata ujian terakhir — tipe <code>float</code> atau <code>double</code></span></li>
-          <li><span class="bullet">▸</span><span>Status aktif ekstrakurikuler — tipe <code>bool</code></span></li>
-        </ul>
-      </div>
-
-      <div class="code-block protected-code">
-        <div class="code-head"><span>Kerangka Awal — datadiri_variabel.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
-        <div class="code-body">
+        <div class="code-block protected-code">
+          <div class="code-head"><span>Kerangka Awal — datadiri_variabel.cpp</span><span class="no-copy-badge">🔒 ketik sendiri</span></div>
+          <div class="code-body">
 <div class="code-line" data-ln="1"><span class="tk-pre">#include</span> <span class="tk-str">&lt;iostream&gt;</span></div>
 <div class="code-line" data-ln="2"><span class="tk-pre">#include</span> <span class="tk-str">&lt;string&gt;</span></div>
 <div class="code-line" data-ln="3"></div>
@@ -959,46 +1065,68 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
 <div class="code-line" data-ln="15"></div>
 <div class="code-line" data-ln="16">    <span class="tk-kw">return</span> <span class="tk-str">0</span><span class="tk-punc">;</span></div>
 <div class="code-line" data-ln="17"><span class="tk-punc">}</span></div>
+          </div>
+        </div>
+
+        <p style="font-size:13.5px;">Contoh gambaran hasil akhir yang diharapkan (isinya tentu diganti dengan data dirimu sendiri):</p>
+        <div class="console-block">
+          <div class="console-head"><span>Contoh tampilan saat program berhasil dijalankan</span></div>
+          <div class="console-body">
+            <div class="cline">Nama&#8202;: ....................</div>
+            <div class="cline">Kelas&#8202;: ....................</div>
+            <div class="cline">Umur&#8202;: ....................</div>
+            <div class="cline">Tinggi&#8202;: ....................</div>
+            <div class="cline">Nilai Rata-rata&#8202;: ....................</div>
+            <div class="cline">Aktif Ekskul&#8202;: ....................</div>
+            <div class="cmeta">Process exited after 0.01 seconds with return value 0<br>Press any key to continue . . .</div>
+          </div>
+        </div>
+
+        <div class="submit-box">
+          <h4>Cara Mengumpulkan</h4>
+          <p>Tugas ini dikumpulkan di LMS, berupa screenshot yang menampilkan kode program sekaligus hasil tampilan Console setelah menekan <strong>F11</strong>. Kamu bisa letakkan jendela Console berdampingan dengan kodemu, lalu screenshot. Hasil screenshot tersebut yang kamu kumpulkan di bagian <strong>"Latihan 2 – Variabel dan Tipe Data"</strong> pada LMS.</p>
+        </div>
+
+        <h3 style="font-size:17px; margin-top:38px;">Kirim Hasil Uji Paham ke Pembina</h3>
+        <p>Isi data di bawah untuk mengirim skor 4 uji paham yang sudah kamu selesaikan di langkah 01–04, plus dua latihan santai (Cocokkan Nilai &amp; Tipe Data, dan Perburuan Deklarasi yang Salah).</p>
+        <div class="progress-recap" id="progressRecap">
+          <div class="recap-chip">Variabel &amp; Tipe Data<b id="recapG1">-</b></div>
+          <div class="recap-chip">Aturan Penamaan<b id="recapG2">-</b></div>
+          <div class="recap-chip">Deklarasi &amp; Inisialisasi<b id="recapG3">-</b></div>
+          <div class="recap-chip">Hal Penting Lainnya<b id="recapG4">-</b></div>
+        </div>
+        <div class="quiz-card">
+          <div class="idform" id="formIndividu">
+            <div class="field"><label for="qNama">Nama Lengkap</label><input id="qNama" type="text" placeholder="Nama kamu"></div>
+            <div class="field"><label for="qKelas">Kelas</label><input id="qKelas" type="text" placeholder="Contoh: XII 1"></div>
+            <div class="field"><label for="qNis">NIS</label><input id="qNis" type="text" placeholder="Nomor Induk Siswa"></div>
+            <div class="field"><label for="qAbsen">No. Absen</label><input id="qAbsen" type="text" placeholder="Nomor absen"></div>
+          </div>
+          <button class="btn primary" id="submitHasil">Kirim Hasil</button>
+          <div id="submitResult"></div>
         </div>
       </div>
 
-      <p style="font-size:13.5px;">Contoh gambaran hasil akhir yang diharapkan (isinya tentu diganti dengan data dirimu sendiri):</p>
-      <div class="console-block">
-        <div class="console-head">Contoh tampilan saat program berhasil dijalankan</div>
-        <div class="console-body">
-          <div class="cline">Nama&#8202;: ....................</div>
-          <div class="cline">Kelas&#8202;: ....................</div>
-          <div class="cline">Umur&#8202;: ....................</div>
-          <div class="cline">Tinggi&#8202;: ....................</div>
-          <div class="cline">Nilai Rata-rata&#8202;: ....................</div>
-          <div class="cline">Aktif Ekskul&#8202;: ....................</div>
-          <div class="cmeta">Process exited after 0.01 seconds with return value 0<br>Press any key to continue . . .</div>
-        </div>
+      <div class="sources">
+        <h3>Sumber Materi</h3>
+        <ul>
+          <li>cppreference.com — <a href="https://en.cppreference.com/w/cpp/language/types.html" target="_blank" rel="noopener">Fundamental types</a></li>
+          <li>GeeksforGeeks — <a href="https://www.geeksforgeeks.org/cpp/cpp-variables/" target="_blank" rel="noopener">Variables in C++</a></li>
+          <li>GeeksforGeeks — <a href="https://www.geeksforgeeks.org/cpp/cpp-data-types/" target="_blank" rel="noopener">Data Types in C++</a></li>
+          <li>Learn C++ (learncpp.com) — <a href="https://www.learncpp.com/cpp-tutorial/keywords-and-naming-identifiers/" target="_blank" rel="noopener">Keywords and naming identifiers</a></li>
+          <li>W3Schools — <a href="https://www.w3schools.com/cpp/cpp_data_types.asp" target="_blank" rel="noopener">C++ Data Types</a></li>
+        </ul>
       </div>
 
-      <div class="submit-box">
-        <h4>Cara Mengumpulkan</h4>
-        <p style="margin-top:8px; margin-bottom:0;">Tugas ini dikumpulkan di LMS, berupa screenshot yang menampilkan kode program sekaligus hasil tampilan Console setelah menekan <strong>F11</strong>. Kamu bisa letakkan jendela Console berdampingan dengan kodemu, lalu screenshot. Hasil screenshot tersebut yang kamu kumpulkan di bagian <strong>"Latihan 2 – Variabel dan Tipe Data"</strong> pada LMS.</p>
-      </div>
+      <footer style="text-align:center; padding:24px 20px; font-family:var(--font-mono); font-size:12.5px; color:var(--text-faint); max-width:520px; margin:0 auto;">"Variabel yang rapi dan tipe data yang tepat adalah fondasi dari kode yang mudah dibaca — bahkan oleh dirimu sendiri di masa depan." <span style="color:var(--amber);">💛</span> Semangat belajar, Ekstra Komputer!</footer>
+      </div><!-- /step-content -->
     </section>
 
   </main>
 </div>
 
-<div class="sources">
-  <h3>Sumber Materi</h3>
-  <ul>
-    <li>cppreference.com — <a href="https://en.cppreference.com/w/cpp/language/types.html" target="_blank" rel="noopener">Fundamental types</a></li>
-    <li>GeeksforGeeks — <a href="https://www.geeksforgeeks.org/cpp/cpp-variables/" target="_blank" rel="noopener">Variables in C++</a></li>
-    <li>GeeksforGeeks — <a href="https://www.geeksforgeeks.org/cpp/cpp-data-types/" target="_blank" rel="noopener">Data Types in C++</a></li>
-    <li>Learn C++ (learncpp.com) — <a href="https://www.learncpp.com/cpp-tutorial/keywords-and-naming-identifiers/" target="_blank" rel="noopener">Keywords and naming identifiers</a></li>
-    <li>W3Schools — <a href="https://www.w3schools.com/cpp/cpp_data_types.asp" target="_blank" rel="noopener">C++ Data Types</a></li>
-  </ul>
-</div>
-
 <div class="statusbar" id="statusbar">
-  <span id="sbFile">📄 Beranda</span>
-  <span>Ln <b id="sbLine">1</b>, Kol <b id="sbCol">1</b></span>
+  <span id="sbStep">Langkah 0 dari 6</span>
   <span id="sbProgress">Progres: <b>0%</b></span>
   <span>UTF-8</span>
   <span style="margin-left:auto;">Siap</span>
@@ -1006,16 +1134,13 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
 
 <div class="toast" id="toast">Yuk, coba ketik sendiri kodenya ya 🙂</div>
 
-<footer style="text-align:center; padding:24px 20px; font-family:var(--font-mono); font-size:12.5px; color:var(--text-faint); max-width:520px; margin:0 auto;">"Variabel yang rapi dan tipe data yang tepat adalah fondasi dari kode yang mudah dibaca — bahkan oleh dirimu sendiri di masa depan." <span style="color:var(--amber);">💛</span> Semangat belajar, Ekstra Komputer!</footer>
-
 </div><!-- /#konten-utama -->
 
 <script>const MODUL_ID = "EKS-CPP-02";</script>
 <script>
   // Jaring pengaman preview: kalau config.js/guard.js belum ada di folder
-  // yang sama (mis. saat file ini dibuka langsung sebelum di-hosting) atau
-  // pengecekan ke Google Sheet lambat/menggantung, materi tetap otomatis
-  // ditampilkan — tidak nyangkut selamanya di "Memuat materi...".
+  // yang sama, atau pengecekan ke Google Sheet lambat/menggantung, materi
+  // tetap otomatis ditampilkan — tidak nyangkut selamanya di "Memuat materi...".
   let __revealed = false;
   function __forceReveal(){
     if(__revealed) return;
@@ -1067,49 +1192,11 @@ td.tp-no{color:var(--coral); font-family:var(--font-mono); font-weight:600;}
   next();
 })();
 
-/* ---------------- Mobile sidebar toggle ---------------- */
-const sidebar = document.getElementById('sidebar');
-document.getElementById('menuToggle').addEventListener('click', ()=> sidebar.classList.toggle('open'));
-document.querySelectorAll('#sidenav a').forEach(a=>{
-  a.addEventListener('click', ()=> sidebar.classList.remove('open'));
-});
-
-/* ---------------- Active nav + status bar via scroll ---------------- */
-const sections = [...document.querySelectorAll('main .hero, main .section')];
-const navLinks = [...document.querySelectorAll('#sidenav a')];
-const sbFile = document.getElementById('sbFile');
-const sbLine = document.getElementById('sbLine');
-const sbCol = document.getElementById('sbCol');
-const sbProgress = document.getElementById('sbProgress');
-const fileNames = {
-  beranda:'Beranda', variabel:'Apa itu Variabel', tipedata:'Tipe Data Dasar',
-  penamaan:'Aturan Penamaan', deklarasi:'Deklarasi & Inisialisasi',
-  contoh:'Contoh Program', materi:'Hal Penting Lainnya', kuis:'Uji Pemahaman', latihan:'Latihan'
-};
-const obs = new IntersectionObserver((entries)=>{
-  entries.forEach(entry=>{
-    if(entry.isIntersecting){
-      const id = entry.target.id;
-      navLinks.forEach(l=> l.classList.toggle('active', l.dataset.target === id));
-      sbFile.textContent = '📄 ' + (fileNames[id] || id);
-    }
-  });
-}, {rootMargin:'-40% 0px -55% 0px'});
-sections.forEach(s=> obs.observe(s));
-
-window.addEventListener('scroll', ()=>{
-  const scrollTop = window.scrollY;
-  const docH = document.documentElement.scrollHeight - window.innerHeight;
-  const pct = docH > 0 ? Math.min(100, Math.round((scrollTop/docH)*100)) : 0;
-  sbProgress.innerHTML = 'Progres: <b>' + pct + '%</b>';
-  sbLine.textContent = Math.max(1, Math.round(scrollTop/18) + 1);
-  sbCol.textContent = (Math.round(scrollTop) % 40) + 1;
-}, {passive:true});
-
 /* ---------------- Cegah copy-paste kode ---------------- */
 let toastTimer = null;
-function showToast(){
+function showToast(msg){
   const t = document.getElementById('toast');
+  t.textContent = msg || 'Yuk, coba ketik sendiri kodenya ya 🙂';
   t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(()=> t.classList.remove('show'), 1800);
@@ -1129,152 +1216,410 @@ document.addEventListener('keydown', e=>{
   }
 });
 
-/* ---------------- QUIZ: Multiple choice (variabel & tipe data) ---------------- */
-const quizDataRaw = [
-  {
-    q: "Apa yang dimaksud dengan variabel dalam pemrograman?",
-    options: [
-      "Nama tempat penyimpanan nilai di memori yang isinya bisa berubah",
-      "Bagian kode yang tidak pernah dijalankan",
-      "Nama lain untuk fungsi main()",
-      "Simbol untuk mengakhiri sebuah statement"
-    ],
-    correct: 0,
-    explain: "Variabel adalah nama untuk tempat penyimpanan di memori, sehingga nilainya bisa disimpan, dibaca, dan diubah selama program berjalan."
-  },
-  {
-    q: "Tipe data manakah yang paling tepat untuk menyimpan angka 17 (umur seseorang)?",
-    options: ["char", "int", "bool", "string"],
-    correct: 1,
-    explain: "int dipakai untuk bilangan bulat tanpa koma, seperti umur, jumlah, atau nomor absen."
-  },
-  {
-    q: "Manakah penulisan yang benar untuk variabel bertipe char?",
-    options: ["char kelas = \"A\";", "char kelas = 'A';", "char kelas = A;", "char kelas = 1A;"],
-    correct: 1,
-    explain: "char selalu memakai tanda kutip satu dan isinya cuma satu karakter, contoh: char kelas = 'A';"
-  },
-  {
-    q: "Nilai apa saja yang boleh disimpan oleh tipe data bool?",
-    options: ["0 sampai 255", "true dan false", "Semua jenis angka desimal", "Satu karakter huruf"],
-    correct: 1,
-    explain: "bool hanya bisa berisi salah satu dari dua nilai: true (benar) atau false (salah)."
-  },
-  {
-    q: "Manakah nama variabel yang VALID menurut aturan penamaan C++?",
-    options: ["2nilai", "nilai ujian", "nilai_ujian", "int"],
-    correct: 2,
-    explain: "nilai_ujian valid: diawali huruf, tanpa spasi, dan bukan kata kunci. Pilihan lain melanggar aturan penamaan."
-  },
-  {
-    q: "Apa perbedaan utama antara deklarasi dan inisialisasi variabel?",
-    options: [
-      "Tidak ada bedanya, istilah itu sama saja",
-      "Deklarasi membuat variabelnya, inisialisasi mengisi nilai pertamanya",
-      "Inisialisasi hanya berlaku untuk tipe data string",
-      "Deklarasi hanya boleh dilakukan di luar fungsi main()"
-    ],
-    correct: 1,
-    explain: "Deklarasi adalah proses membuat variabel dengan tipe data tertentu, sedangkan inisialisasi adalah memberi nilai pertama ke variabel itu."
-  },
-  {
-    q: "Kapan sebaiknya kita memilih tipe long dibandingkan int?",
-    options: [
-      "Saat nilai bilangan bulatnya berpotensi sangat besar, melebihi kapasitas int",
-      "Saat menyimpan teks yang panjang",
-      "Saat nilainya berupa pecahan/desimal",
-      "Saat variabel itu hanya dipakai sekali di program"
-    ],
-    correct: 0,
-    explain: "long dipakai saat nilai bilangan bulatnya berpotensi sangat besar, melebihi rentang int biasa — misalnya jumlah penduduk suatu negara."
+/* ---------------- Util ---------------- */
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
   }
+  return a;
+}
+
+/* ---------------- Animasi Console: reveal output baris demi baris ---------------- */
+function animateConsole(bodyId, seq){
+  const body = document.getElementById(bodyId);
+  if(!body) return;
+  body.innerHTML = '';
+  let i = 0;
+
+  function showLines(lines, cb){
+    let idx = 0;
+    function next(){
+      if(idx < lines.length){
+        const l = document.createElement('div');
+        l.className = 'cline';
+        l.textContent = lines[idx];
+        body.appendChild(l);
+        idx++;
+        setTimeout(next, 280);
+      } else {
+        cb();
+      }
+    }
+    next();
+  }
+
+  function step(){
+    if(i >= seq.length) return;
+    const s = seq[i];
+    if(s.type === 'lines'){
+      showLines(s.lines, ()=>{ i++; setTimeout(step, 150); });
+    } else if(s.type === 'meta'){
+      const meta = document.createElement('div');
+      meta.className = 'cmeta';
+      meta.innerHTML = s.text;
+      body.appendChild(meta);
+      i++; step();
+    }
+  }
+  setTimeout(step, 300);
+}
+
+const consoleMeta = 'Process exited after 0.01 seconds with return value 0<br>Press any key to continue . . .';
+
+const consoleDemos = {
+  demoA: [
+    { type:'lines', lines:['Saya Umur 17','Nilai ekstra saya 90'] },
+    { type:'meta', text: consoleMeta }
+  ],
+  demoB: [
+    { type:'lines', lines:['17/8/1945'] },
+    { type:'meta', text: consoleMeta }
+  ],
+  demoC: [
+    { type:'lines', lines:['Nama: Kadek','Umur: 16','Tinggi: 165.5','Kelas: B','Aktif Ekskul: 1'] },
+    { type:'meta', text: consoleMeta }
+  ]
+};
+
+function putarDemo(key){
+  const targetId = { demoA:'consoleBodyA', demoB:'consoleBodyB', demoC:'consoleBodyC' }[key];
+  animateConsole(targetId, consoleDemos[key]);
+}
+document.querySelectorAll('.console-replay').forEach(btn=>{
+  btn.addEventListener('click', ()=> putarDemo(btn.dataset.replay));
+});
+const demoPerStep = { 3:'demoA', 5:'demoC' }; // demoB diputar manual (dua demo di step3)
+
+/* ---------------- STEPPER: continuous scroll, gerbang antar langkah ---------------- */
+const totalSteps = 6; // langkah 1..6 (langkah 0 = beranda, selalu terbuka)
+let maxUnlocked = 1; // langkah 0 & 1 terbuka sejak awal
+
+/* ---- Mode Guru: buka semua langkah + bisa scroll bebas tanpa lolos kuis ----
+   Cara pakai: tambahkan ?guru=1 di akhir link file ini, atau tekan
+   Ctrl+Alt+G saat membuka materi. Siswa yang membuka link biasa
+   tidak akan tahu/terpengaruh oleh ini. */
+let modeGuru = false;
+function aktifkanModeGuru(){
+  modeGuru = true;
+  maxUnlocked = totalSteps;
+  const badge = document.getElementById('guruBadge');
+  if(badge) badge.classList.remove('hidden');
+  refreshLocks();
+  showToast('🔓 Mode Guru aktif — semua materi terbuka, tinggal scroll ke bawah');
+}
+(function cekModeGuru(){
+  try{
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('guru') === '1' || params.get('mode') === 'guru'){
+      maxUnlocked = totalSteps;
+      modeGuru = true;
+    }
+  }catch(e){}
+})();
+document.addEventListener('keydown', e=>{
+  if(e.ctrlKey && e.altKey && (e.key === 'g' || e.key === 'G')){
+    aktifkanModeGuru();
+  }
+});
+
+const stepNames = {
+  0:'Beranda', 1:'Variabel & Tipe Data', 2:'Aturan Penamaan',
+  3:'Deklarasi & Inisialisasi', 4:'Hal Penting Lainnya',
+  5:'Contoh Program Lengkap', 6:'Latihan & Kirim Hasil'
+};
+const navLinks = [...document.querySelectorAll('#stepnav a')];
+const sidebar = document.getElementById('sidebar');
+
+function refreshLocks(){
+  for(let n = 2; n <= totalSteps; n++){
+    const panel = document.getElementById('step' + n);
+    if(panel) panel.classList.toggle('locked', n > maxUnlocked);
+  }
+  navLinks.forEach(a=>{
+    const n = parseInt(a.dataset.step, 10);
+    a.classList.toggle('locked', n > maxUnlocked);
+    a.classList.toggle('done', n < maxUnlocked && n !== 0);
+    const lock = a.querySelector('.lockicon');
+    if(lock) lock.style.display = (n > maxUnlocked) ? 'inline' : 'none';
+  });
+  const pct = Math.round((maxUnlocked / (totalSteps + 1)) * 100);
+  document.getElementById('sbProgress').innerHTML = 'Progres: <b>' + pct + '%</b>';
+  const badge = document.getElementById('guruBadge');
+  if(badge) badge.classList.toggle('hidden', !modeGuru);
+}
+
+function scrollToStep(n){
+  const panel = document.getElementById('step' + n);
+  if(!panel) return;
+  if(n > maxUnlocked){
+    showToast('Selesaikan uji paham langkah sebelumnya dulu ya 🔐');
+  }
+  panel.scrollIntoView({behavior:'smooth', block:'start'});
+  sidebar.classList.remove('open');
+}
+
+function unlockStep(n){
+  if(n > maxUnlocked){
+    maxUnlocked = n;
+    refreshLocks();
+  }
+  if(demoPerStep[n] && !modeGuru){
+    putarDemo(demoPerStep[n]);
+  }
+  const panel = document.getElementById('step' + n);
+  if(panel) setTimeout(()=> panel.scrollIntoView({behavior:'smooth', block:'start'}), 250);
+}
+
+navLinks.forEach(a=>{
+  a.addEventListener('click', ()=> scrollToStep(parseInt(a.dataset.step, 10)));
+});
+document.getElementById('btnMulai').addEventListener('click', ()=> scrollToStep(1));
+document.getElementById('btnLanjutLatihan').addEventListener('click', ()=> unlockStep(6));
+document.getElementById('menuToggle').addEventListener('click', ()=> sidebar.classList.toggle('open'));
+refreshLocks();
+
+const stepSections = [...document.querySelectorAll('.step-panel')];
+const scrollObs = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const n = parseInt(entry.target.id.replace('step',''), 10);
+      navLinks.forEach(l=> l.classList.toggle('active', parseInt(l.dataset.step,10) === n));
+      document.getElementById('topbarStepName').textContent = 'Pertemuan 2 — ' + stepNames[n];
+      document.getElementById('sbStep').textContent = 'Langkah ' + n + ' dari ' + totalSteps;
+    }
+  });
+}, {rootMargin:'-35% 0px -55% 0px'});
+stepSections.forEach(s=> scrollObs.observe(s));
+
+/* ---------------- Engine kuis gerbang (reusable untuk 4 gate) ---------------- */
+const hasilGate = {};
+
+function buatGate(prefix, pool, jumlahSoal, ambangLolos, onLolos){
+  const el = id => document.getElementById(prefix + id);
+  const state = { data:[], index:0, skor:0, dijawab:false };
+
+  function acakSoal(){
+    const dipilih = shuffle(pool).slice(0, jumlahSoal);
+    return dipilih.map(item=>{
+      const opsiBerlabel = item.options.map((opt, idx)=> ({opt, benar: idx === item.correct}));
+      const opsiDiacak = shuffle(opsiBerlabel);
+      return {
+        q: item.q,
+        options: opsiDiacak.map(o=> o.opt),
+        correct: opsiDiacak.findIndex(o=> o.benar),
+        explain: item.explain
+      };
+    });
+  }
+
+  function render(){
+    state.dijawab = false;
+    const item = state.data[state.index];
+    el('Progress').textContent = 'Soal ' + (state.index+1) + ' dari ' + state.data.length;
+    el('Text').innerHTML = item.q;
+    el('Options').innerHTML = '';
+    el('Explain').style.display = 'none';
+    el('Explain').textContent = '';
+    el('NextBtn').disabled = true;
+    el('NextBtn').textContent = state.index === state.data.length - 1 ? 'Lihat Hasil →' : 'Soal Berikutnya →';
+    item.options.forEach((opt, idx)=>{
+      const b = document.createElement('button');
+      b.className = 'q-opt';
+      b.innerHTML = opt;
+      b.addEventListener('click', ()=> pilih(idx));
+      el('Options').appendChild(b);
+    });
+  }
+
+  function pilih(idx){
+    if(state.dijawab) return;
+    state.dijawab = true;
+    const item = state.data[state.index];
+    const btns = [...el('Options').children];
+    btns.forEach((b,i)=>{
+      b.disabled = true;
+      if(i === item.correct) b.classList.add('correct');
+      else if(i === idx) b.classList.add('wrong');
+    });
+    if(idx === item.correct) state.skor++;
+    el('ScoreLabel').textContent = 'Skor: ' + state.skor;
+    el('Explain').style.display = 'block';
+    el('Explain').innerHTML = item.explain;
+    el('NextBtn').disabled = false;
+  }
+
+  function selesai(){
+    el('Card').style.display = 'none';
+    el('Result').style.display = 'block';
+    el('ResultScore').textContent = state.skor + '/' + state.data.length;
+    const pct = state.skor / state.data.length;
+    hasilGate[prefix] = { skor: state.skor, total: state.data.length };
+    if(pct >= ambangLolos){
+      el('ResultMsg').style.color = 'var(--mint)';
+      el('ResultMsg').textContent = (pct === 1)
+        ? 'Sempurna! Semua jawaban benar. 🎉'
+        : 'Lolos! Skormu sudah minimal 80%. Yuk lanjut ke langkah berikutnya.';
+      el('RetryBtn').classList.add('hidden');
+      el('UnlockBtn').classList.remove('hidden');
+    } else {
+      el('ResultMsg').style.color = 'var(--coral)';
+      el('ResultMsg').textContent = 'Belum lolos — minimal 4 dari 5 jawaban (80%) harus benar. Baca ulang materi di atas, lalu coba lagi dengan soal yang diacak ulang.';
+      el('RetryBtn').classList.remove('hidden');
+      el('UnlockBtn').classList.add('hidden');
+    }
+  }
+
+  el('NextBtn').addEventListener('click', ()=>{
+    state.index++;
+    if(state.index >= state.data.length) selesai();
+    else render();
+  });
+
+  function mulai(){
+    state.data = acakSoal();
+    state.index = 0; state.skor = 0;
+    el('Card').style.display = 'block';
+    el('Result').style.display = 'none';
+    el('ScoreLabel').textContent = 'Skor: 0';
+    render();
+  }
+
+  el('RetryBtn').addEventListener('click', mulai);
+  el('UnlockBtn').addEventListener('click', onLolos);
+
+  mulai();
+}
+
+/* ---------------- Pool soal Gate 1: Variabel & Tipe Data ---------------- */
+const pool1 = [
+  { q:'Apa yang dimaksud dengan variabel dalam pemrograman?', options:[
+      'Nama tempat penyimpanan nilai di memori yang isinya bisa berubah',
+      'Bagian kode yang tidak pernah dijalankan',
+      'Nama lain untuk fungsi main()',
+      'Simbol untuk mengakhiri sebuah statement'
+    ], correct:0, explain:'Variabel adalah nama untuk tempat penyimpanan di memori, sehingga nilainya bisa disimpan, dibaca, dan diubah selama program berjalan.' },
+  { q:'Tipe data manakah yang paling tepat untuk menyimpan angka 17 (umur seseorang)?', options:[
+      '<code>char</code>', '<code>int</code>', '<code>bool</code>', '<code>string</code>'
+    ], correct:1, explain:'int dipakai untuk bilangan bulat tanpa koma, seperti umur, jumlah, atau nomor absen.' },
+  { q:'Manakah penulisan yang benar untuk variabel bertipe <code>char</code>?', options:[
+      '<code>char kelas = "A";</code>', '<code>char kelas = \'A\';</code>', '<code>char kelas = A;</code>', '<code>char kelas = 1A;</code>'
+    ], correct:1, explain:'char selalu memakai tanda kutip satu dan isinya cuma satu karakter, contoh: char kelas = \'A\';' },
+  { q:'Nilai apa saja yang boleh disimpan oleh tipe data <code>bool</code>?', options:[
+      '0 sampai 255', 'true dan false', 'Semua jenis angka desimal', 'Satu karakter huruf'
+    ], correct:1, explain:'bool hanya bisa berisi salah satu dari dua nilai: true (benar) atau false (salah).' },
+  { q:'Tipe data apa yang paling tepat untuk menyimpan nilai desimal seperti tinggi badan 165.5?', options:[
+      '<code>int</code>', '<code>double</code>', '<code>bool</code>', '<code>char</code>'
+    ], correct:1, explain:'double (atau float) dipakai untuk bilangan berkoma seperti tinggi badan, berat badan, atau nilai rata-rata.' },
+  { q:'Kapan sebaiknya kita memilih tipe <code>long</code> dibandingkan <code>int</code>?', options:[
+      'Saat nilai bilangan bulatnya berpotensi sangat besar, melebihi kapasitas int',
+      'Saat menyimpan teks yang panjang',
+      'Saat nilainya berupa pecahan/desimal',
+      'Saat variabel itu hanya dipakai sekali di program'
+    ], correct:0, explain:'long dipakai saat nilai bilangan bulatnya berpotensi sangat besar, melebihi rentang int biasa — misalnya jumlah penduduk suatu negara.' },
+  { q:'Dibanding <code>int</code>, jatah memori tipe <code>short</code> biasanya...', options:[
+      'Lebih besar', 'Lebih kecil', 'Selalu persis sama', 'Tidak berhubungan dengan memori sama sekali'
+    ], correct:1, explain:'short biasanya diberi jatah memori lebih kecil (sekitar 2 byte) dibanding int (sekitar 4 byte), sehingga rentang angkanya juga lebih terbatas.' }
 ];
-function acakSoalKuis(){
-  const soalDiacak = shuffle(quizDataRaw);
-  return soalDiacak.map(item=>{
-    const opsiBerlabel = item.options.map((opt, idx)=> ({opt, benar: idx === item.correct}));
-    const opsiDiacak = shuffle(opsiBerlabel);
-    return {
-      q: item.q,
-      options: opsiDiacak.map(o=> o.opt),
-      correct: opsiDiacak.findIndex(o=> o.benar),
-      explain: item.explain
-    };
-  });
-}
-let quizData = acakSoalKuis();
-let qIndex = 0, qScore = 0, qAnswered = false, qCompleted = false;
-const qProgress = document.getElementById('qProgress');
-const qText = document.getElementById('qText');
-const qOptions = document.getElementById('qOptions');
-const qExplain = document.getElementById('qExplain');
-const qNextBtn = document.getElementById('qNextBtn');
-const qScoreLabel = document.getElementById('qScoreLabel');
-const quizCard = document.getElementById('quizCard');
-const quizResult = document.getElementById('quizResult');
 
-function renderQuestion(){
-  qAnswered = false;
-  const item = quizData[qIndex];
-  qProgress.textContent = `Soal ${qIndex+1} dari ${quizData.length}`;
-  qText.textContent = item.q;
-  qOptions.innerHTML = '';
-  qExplain.style.display = 'none';
-  qExplain.textContent = '';
-  qNextBtn.disabled = true;
-  qNextBtn.textContent = qIndex === quizData.length - 1 ? 'Lihat Hasil →' : 'Soal Berikutnya →';
-  item.options.forEach((opt, idx)=>{
-    const b = document.createElement('button');
-    b.className = 'q-opt';
-    b.textContent = opt;
-    b.addEventListener('click', ()=> selectAnswer(idx));
-    qOptions.appendChild(b);
-  });
-}
-function selectAnswer(idx){
-  if(qAnswered) return;
-  qAnswered = true;
-  const item = quizData[qIndex];
-  const btns = [...qOptions.children];
-  btns.forEach((b, i)=>{
-    b.disabled = true;
-    if(i === item.correct) b.classList.add('correct');
-    else if(i === idx) b.classList.add('wrong');
-  });
-  if(idx === item.correct) qScore++;
-  qScoreLabel.textContent = 'Skor: ' + qScore;
-  qExplain.style.display = 'block';
-  qExplain.textContent = item.explain;
-  qNextBtn.disabled = false;
-}
-qNextBtn.addEventListener('click', ()=>{
-  qIndex++;
-  if(qIndex >= quizData.length){
-    quizCard.style.display = 'none';
-    quizResult.style.display = 'block';
-    qCompleted = true;
-    document.getElementById('quizResultScore').textContent = qScore + '/' + quizData.length;
-    let msg = '';
-    const pct = qScore/quizData.length;
-    if(pct === 1) msg = 'Sempurna! Pemahamanmu tentang variabel dan tipe data sudah sangat baik. 🎉';
-    else if(pct >= 0.6) msg = 'Bagus! Coba baca ulang bagian yang masih meleset sebelum lanjut ke latihan.';
-    else msg = 'Belum apa-apa — scroll ke atas dan baca ulang bagian Tipe Data Dasar & Aturan Penamaan, lalu coba lagi.';
-    document.getElementById('quizResultMsg').textContent = msg;
-  } else {
-    renderQuestion();
-  }
-});
-document.getElementById('quizRestart').addEventListener('click', ()=>{
-  quizData = acakSoalKuis();
-  qIndex = 0; qScore = 0; qCompleted = false;
-  quizResult.style.display = 'none';
-  quizCard.style.display = 'block';
-  qScoreLabel.textContent = 'Skor: 0';
-  renderQuestion();
-});
-renderQuestion();
+/* ---------------- Pool soal Gate 2: Aturan Penamaan ---------------- */
+const pool2 = [
+  { q:'Nama variabel di C++ harus diawali dengan apa?', options:[
+      'Angka', 'Huruf atau garis bawah (_)', 'Simbol seperti # atau @', 'Spasi'
+    ], correct:1, explain:'Nama variabel wajib diawali huruf (a-z, A-Z) atau garis bawah _, tidak boleh diawali angka.' },
+  { q:'Manakah nama variabel yang VALID menurut aturan penamaan C++?', options:[
+      '<code>2nilai</code>', '<code>nilai ujian</code>', '<code>nilai_ujian</code>', '<code>int</code>'
+    ], correct:2, explain:'nilai_ujian valid: diawali huruf, tanpa spasi, dan bukan kata kunci. Pilihan lain melanggar aturan penamaan.' },
+  { q:'Apakah C++ membedakan huruf besar dan kecil pada nama variabel (case-sensitive)?', options:[
+      'Ya, <code>nilai</code>, <code>Nilai</code>, dan <code>NILAI</code> dianggap tiga variabel berbeda',
+      'Tidak, ketiganya dianggap variabel yang sama',
+      'Hanya huruf pertama yang diperhatikan',
+      'Tergantung compiler yang dipakai'
+    ], correct:0, explain:'C++ bersifat case-sensitive, jadi nilai, Nilai, dan NILAI adalah tiga variabel yang berbeda.' },
+  { q:'Apakah nama variabel boleh mengandung spasi atau simbol seperti <code>-</code>, <code>#</code>, atau <code>@</code>?', options:[
+      'Boleh, asal tidak di awal nama', 'Tidak boleh sama sekali', 'Boleh untuk simbol saja, spasi tidak boleh', 'Boleh kalau nama variabelnya panjang'
+    ], correct:1, explain:'Nama variabel hanya boleh terdiri dari huruf, angka, dan garis bawah — tidak boleh ada spasi atau simbol lain.' },
+  { q:'Kenapa nama variabel <code>int</code> tidak boleh dipakai sebagai nama variabel?', options:[
+      'Karena terlalu pendek', 'Karena itu adalah kata kunci (keyword) bawaan C++', 'Karena hanya berlaku untuk angka desimal', 'Sebenarnya boleh-boleh saja dipakai'
+    ], correct:1, explain:'int adalah kata kunci bawaan C++ yang sudah punya arti khusus (nama tipe data), jadi tidak bisa dipakai sebagai nama variabel.' },
+  { q:'Kenapa nama variabel <code>2kelas</code> dianggap tidak valid?', options:[
+      'Karena diawali dengan angka', 'Karena terlalu pendek', 'Karena mengandung huruf kecil', 'Karena tidak memakai garis bawah'
+    ], correct:0, explain:'Nama variabel tidak boleh diawali angka — 2kelas melanggar aturan ini karena dimulai dengan angka 2.' },
+  { q:'Apakah nama variabel yang deskriptif (misalnya <code>nilaiUjian</code> dibanding <code>x</code>) merupakan aturan wajib dalam bahasa C++?', options:[
+      'Ya, wajib, kalau tidak program gagal dikompilasi', 'Bukan aturan wajib, hanya kebiasaan baik supaya kode mudah dibaca', 'Wajib hanya untuk variabel bertipe string', 'Wajib hanya di dalam fungsi main()'
+    ], correct:1, explain:'Memberi nama deskriptif bukan aturan wajib dari bahasa C++, tapi kebiasaan baik supaya kode lebih mudah dipahami.' }
+];
 
-/* ---------------- GAME: Perburuan Deklarasi dan Inisialisasi yang Salah ---------------- */
+/* ---------------- Pool soal Gate 3: Deklarasi & Inisialisasi ---------------- */
+const pool3 = [
+  { q:'Apa perbedaan utama antara deklarasi dan inisialisasi variabel?', options:[
+      'Tidak ada bedanya, istilah itu sama saja',
+      'Deklarasi membuat variabelnya, inisialisasi mengisi nilai pertamanya',
+      'Inisialisasi hanya berlaku untuk tipe data string',
+      'Deklarasi hanya boleh dilakukan di luar fungsi main()'
+    ], correct:1, explain:'Deklarasi adalah proses membuat variabel dengan tipe data tertentu, sedangkan inisialisasi adalah memberi nilai pertama ke variabel itu.' },
+  { q:'Manakah contoh "deklarasi" saja, tanpa langsung diisi nilai?', options:[
+      '<code>int umur;</code>', '<code>int umur = 17;</code>', '<code>umur = 17;</code>', '<code>cout &lt;&lt; umur;</code>'
+    ], correct:0, explain:'int umur; hanya membuat kotak bernama umur tanpa mengisi nilainya — ini disebut deklarasi.' },
+  { q:'Manakah contoh "deklarasi dan inisialisasi sekaligus" dalam satu baris?', options:[
+      '<code>int nilai;</code>', '<code>nilai = 90;</code>', '<code>int nilai = 90;</code>', '<code>cout &lt;&lt; nilai;</code>'
+    ], correct:2, explain:'int nilai = 90; langsung membuat variabel sekaligus mengisi nilainya dalam satu baris — inilah deklarasi + inisialisasi sekaligus.' },
+  { q:'Kalau ada beberapa variabel dengan tipe data yang SAMA, bagaimana cara mendeklarasikannya sekaligus dalam satu baris?', options:[
+      'Dipisah titik koma, contoh <code>int hari; bulan; tahun;</code>',
+      'Dipisah koma, contoh <code>int hari, bulan, tahun;</code>',
+      'Ditulis berulang dengan kata int, contoh <code>int hari int bulan int tahun;</code>',
+      'Tidak bisa, harus satu variabel satu baris'
+    ], correct:1, explain:'Variabel dengan tipe data sama bisa dideklarasikan sekaligus dalam satu baris, dipisah dengan koma.' },
+  { q:'Kalau <code>int hari, bulan, tahun;</code> lalu <code>hari = 17; bulan = 8; tahun = 1945;</code>, apa hasil dari <code>cout &lt;&lt; hari &lt;&lt; "/" &lt;&lt; bulan &lt;&lt; "/" &lt;&lt; tahun;</code>?', options:[
+      '17/8/1945', 'hari/bulan/tahun', '1945/8/17', 'Error saat dikompilasi'
+    ], correct:0, explain:'cout menampilkan nilai variabelnya sesuai urutan penulisan, jadi hasilnya 17/8/1945.' },
+  { q:'Apakah sebuah variabel WAJIB langsung diisi nilai (diinisialisasi) tepat saat dideklarasikan?', options:[
+      'Ya, wajib, kalau tidak program gagal dikompilasi', 'Tidak wajib, variabel boleh dideklarasikan dulu dan diisi belakangan', 'Hanya wajib untuk tipe data angka', 'Hanya wajib untuk tipe data bool'
+    ], correct:1, explain:'Variabel boleh dideklarasikan dulu tanpa nilai, lalu diisi (inisialisasi) belakangan di baris lain — seperti pada int umur; lalu umur = 17;' },
+  { q:'Manakah penulisan yang benar untuk deklarasi sekaligus inisialisasi sebuah variabel bertipe int bernama nilai dengan isi 90?', options:[
+      '<code>int nilai; = 90;</code>', '<code>int nilai = 90;</code>', '<code>nilai int = 90;</code>', '<code>int = nilai 90;</code>'
+    ], correct:1, explain:'Urutan penulisan yang benar adalah: tipe data, nama variabel, tanda sama dengan, lalu nilainya — int nilai = 90;' }
+];
+
+/* ---------------- Pool soal Gate 4: Hal Penting Lainnya ---------------- */
+const pool4 = [
+  { q:'Apa bedanya <code>char</code> dan <code>string</code> dalam hal tanda kutip dan jumlah karakter?', options:[
+      'Tidak ada bedanya, keduanya sama saja',
+      'char pakai kutip satu dan cuma satu karakter, string pakai kutip dua dan boleh banyak karakter',
+      'char pakai kutip dua, string pakai kutip satu',
+      'string hanya boleh berisi angka'
+    ], correct:1, explain:'char selalu satu karakter dengan kutip satu (\'A\'), sedangkan string boleh berisi banyak karakter dengan kutip dua ("Wayan").' },
+  { q:'Kalau sebuah nilai ditulis lebih dari satu karakter atau memakai kutip dua, sebaiknya dipakai tipe data apa?', options:[
+      '<code>char</code>', '<code>string</code>', '<code>bool</code>', '<code>int</code>'
+    ], correct:1, explain:'Kalau isinya lebih dari satu karakter atau memakai kutip dua, itu tandanya seharusnya memakai tipe string, bukan char.' },
+  { q:'Nilai bertipe <code>bool</code> sebaiknya diisi dengan apa saja?', options:[
+      'Sembarang angka, dari 0 sampai 255', 'true atau false saja', 'Teks bebas dalam tanda kutip', 'Satu karakter huruf'
+    ], correct:1, explain:'bool sebaiknya hanya diisi dengan true atau false, sesuai maknanya sebagai nilai benar/salah.' },
+  { q:'Kalau nama variabel yang terlihat wajar tetap ditolak oleh compiler, kemungkinan besar alasannya adalah...', options:[
+      'Nama itu kebetulan sama dengan salah satu kata kunci (keyword) C++',
+      'Nama itu terlalu pendek',
+      'Nama itu memakai huruf kapital',
+      'Compiler sedang error tanpa sebab'
+    ], correct:0, explain:'Kalau nama variabel yang wajar tetap ditolak, coba periksa apakah nama itu kebetulan sama dengan kata kunci C++ seperti int, if, atau class.' },
+  { q:'Nilai <code>17</code> (tanpa tanda kutip) paling cocok dipasangkan dengan tipe data apa?', options:[
+      '<code>int</code>', '<code>string</code>', '<code>char</code>', '<code>bool</code>'
+    ], correct:0, explain:'Angka bulat tanpa tanda kutip seperti 17 paling cocok disimpan sebagai int.' },
+  { q:'Nilai <code>"Wayan"</code> (pakai kutip dua) paling cocok dipasangkan dengan tipe data apa?', options:[
+      '<code>char</code>', '<code>string</code>', '<code>int</code>', '<code>bool</code>'
+    ], correct:1, explain:'Teks yang ditulis dengan kutip dua, apalagi lebih dari satu karakter, paling cocok disimpan sebagai string.' },
+  { q:'Nilai <code>\'A\'</code> (pakai kutip satu) paling cocok dipasangkan dengan tipe data apa?', options:[
+      '<code>string</code>', '<code>char</code>', '<code>int</code>', '<code>double</code>'
+    ], correct:1, explain:'Satu karakter dengan tanda kutip satu seperti \'A\' paling cocok disimpan sebagai char.' }
+];
+
+/* ---------------- Inisialisasi 4 gate ---------------- */
+buatGate('g1', pool1, 5, 0.8, ()=>{ unlockStep(2); });
+buatGate('g2', pool2, 5, 0.8, ()=>{ unlockStep(3); });
+buatGate('g3', pool3, 5, 0.8, ()=>{ unlockStep(4); });
+buatGate('g4', pool4, 5, 0.8, ()=>{ unlockStep(5); });
+
+/* ---------------- GAME (latihan santai): Perburuan Deklarasi dan Inisialisasi yang Salah ---------------- */
 const gamePool = [
   {code:'int umur = 17;', missing:false},
   {code:'char kelas = \'A\';', missing:false},
@@ -1291,14 +1636,6 @@ let gameLines = [];
 let gamePicked = new Set();
 let gameChecked = false;
 
-function shuffle(arr){
-  const a = [...arr];
-  for(let i=a.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i],a[j]] = [a[j],a[i]];
-  }
-  return a;
-}
 function setupGame(){
   gameLines = shuffle(gamePool).slice(0,7);
   gamePicked = new Set();
@@ -1360,7 +1697,7 @@ document.getElementById('gameCheck').addEventListener('click', ()=>{
 document.getElementById('gameReset').addEventListener('click', setupGame);
 setupGame();
 
-/* ---------------- GAME: Cocokkan Nilai dengan Tipe Data ---------------- */
+/* ---------------- GAME (latihan santai): Cocokkan Nilai dengan Tipe Data ---------------- */
 const matchPool = {
   int: ['17', '90', '-5', '2024'],
   desimal: ['3.14', '12.75', '9.81', '70.25'],
@@ -1488,9 +1825,18 @@ async function kirimKeSheet(materi, skor, total, identitas){
   }
 }
 
+function perbaruiRecap(){
+  const label = { g1:'recapG1', g2:'recapG2', g3:'recapG3', g4:'recapG4' };
+  Object.keys(label).forEach(k=>{
+    const el = document.getElementById(label[k]);
+    if(hasilGate[k]) el.textContent = hasilGate[k].skor + '/' + hasilGate[k].total;
+  });
+}
+
 document.getElementById('submitHasil').addEventListener('click', async ()=>{
-  if(!qCompleted || !gameChecked || !matchCompleted){
-    alert('Selesaikan dulu kuis pilihan ganda, permainan Cocokkan Nilai & Tipe Data, dan permainan Perburuan Deklarasi dan Inisialisasi yang Salah (di bagian Contoh Program) sebelum mengirim hasil.');
+  const semuaGateSelesai = ['g1','g2','g3','g4'].every(k => hasilGate[k]);
+  if(!semuaGateSelesai || !gameChecked || !matchCompleted){
+    alert('Selesaikan dulu 4 uji paham (langkah 01–04), permainan Cocokkan Nilai & Tipe Data (langkah 04), dan permainan Perburuan Deklarasi dan Inisialisasi yang Salah (langkah 05) sebelum mengirim hasil.');
     return;
   }
   const nama = document.getElementById('qNama').value.trim();
@@ -1501,7 +1847,7 @@ document.getElementById('submitHasil').addEventListener('click', async ()=>{
     alert('Isi dulu Nama, Kelas, NIS, dan No. Absen ya.');
     return;
   }
-  let identitas = { mode: 'Individu', nama, kelas, nis, absen };
+  const identitas = { mode: 'Individu', nama, kelas, nis, absen };
 
   const submitBtn = document.getElementById('submitHasil');
   submitBtn.disabled = true;
@@ -1512,9 +1858,12 @@ document.getElementById('submitHasil').addEventListener('click', async ()=>{
   const matchScoreForSheet = Math.max(0, matchRound.length - matchWrongCount);
 
   await Promise.all([
-    kirimKeSheet(MATERI_LABEL + ' — Kuis Pilihan Ganda', qScore, quizData.length, identitas),
-    kirimKeSheet(MATERI_LABEL + ' — Perburuan Deklarasi dan Inisialisasi yang Salah', gameFound, gameTotal, identitas),
-    kirimKeSheet(MATERI_LABEL + ' — Cocokkan Nilai dan Tipe Data', matchScoreForSheet, matchRound.length, identitas)
+    kirimKeSheet(MATERI_LABEL + ' — Uji Paham Variabel & Tipe Data', hasilGate.g1.skor, hasilGate.g1.total, identitas),
+    kirimKeSheet(MATERI_LABEL + ' — Uji Paham Aturan Penamaan', hasilGate.g2.skor, hasilGate.g2.total, identitas),
+    kirimKeSheet(MATERI_LABEL + ' — Uji Paham Deklarasi & Inisialisasi', hasilGate.g3.skor, hasilGate.g3.total, identitas),
+    kirimKeSheet(MATERI_LABEL + ' — Uji Paham Hal Penting Lainnya', hasilGate.g4.skor, hasilGate.g4.total, identitas),
+    kirimKeSheet(MATERI_LABEL + ' — Cocokkan Nilai dan Tipe Data', matchScoreForSheet, matchRound.length, identitas),
+    kirimKeSheet(MATERI_LABEL + ' — Perburuan Deklarasi dan Inisialisasi yang Salah', gameFound, gameTotal, identitas)
   ]);
 
   const resultBox = document.getElementById('submitResult');
@@ -1522,6 +1871,9 @@ document.getElementById('submitHasil').addEventListener('click', async ()=>{
   resultBox.textContent = 'Hasil berhasil dikirim ke pembina. Terima kasih! 🎉';
   submitBtn.textContent = 'Terkirim ✓';
 });
+
+perbaruiRecap();
+const recapObserver = setInterval(perbaruiRecap, 800);
 </script>
 </body>
 </html>
